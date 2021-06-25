@@ -8,9 +8,9 @@ class LieGroup:
 
     def action(self,g,u,type):
         if type == "left":
-            return np.matmul(g,u)
+            return np.array([i*u for i in g])
         elif type == "right":
-            return np.matmul(u,g)
+            return np.array([u*i for i in g])
 
 class LieAlgebra:
     def __init__(self, LieGroup):
@@ -59,12 +59,8 @@ class Sequences(LieGroup,LieAlgebra):
 
 class S3Sphere:
     def __init__(self, y=np.array([0, 0, 0, 1])):
-        self.exp = self.lie_algebra.exp
-        self.dexpinv = self.lie_algebra.dexpinv
-        self.action = self.lie_group.action
         self.n = y.size
         self.y = y
-        super().__init__()
 
     @property
     def y(self):
@@ -79,10 +75,6 @@ class S3Sphere:
 
 class RKMK4(LieGroup,LieAlgebra):
     def __init__(self):
-        self.exp = self.lie_algebra.exp
-        self.dexpinv = self.lie_algebra.dexpinv
-        self.action = self.lie_group.action
-
         self.a = np.array(
             [
                 [0,   0,   0,   0],
@@ -119,7 +111,7 @@ class RKMK4(LieGroup,LieAlgebra):
 def solve(f,y0,t_init,t_final,h):
 
     manifold = S3Sphere(y0)
-    timestepper = RKMK4(manifold)
+    timestepper = RKMK4()
     n_steps, last_step = divmod((t_final - t_init), h)
     n_steps = int(n_steps)
 
@@ -137,8 +129,8 @@ def solve(f,y0,t_init,t_final,h):
 
 # last step
     if not np.isclose(last_step, 0):
-        hmanifold.y = timestepper.step(f, t_array[-1], hmanifold.y, last_step)
-        y_array[:, -1] = hmanifold.y
-        t_array.append(t_end)
+        manifold.y = timestepper.step(f, t_array[-1], manifold.y, last_step)
+        y_array[:, -1] = manifold.y
+        t_array.append(t_final)
 
     return y_array, t_array
