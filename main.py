@@ -43,12 +43,20 @@ class LieAlgebra:
 
 class Sequences(LieGroup,LieAlgebra):
     def __init__(self,sequences):
-        self.dict = {'A': , 'T':, 'G':, 'C':}
+        self.dict = {
+        'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
+        'T': np.array([[0,1],[-1,0]]),
+        'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
+        'C': np.array([[complex(0,1),0],[0,complex(0,1)]])
+        }
+        self.sequence = sequence
 
     def sequence2group(self):
+        self.group = np.array([self.dict[s] for s in self.sequence])
         return
 
     def group2algebra(self):
+        self.algebra = np.sum([i*j for i,j in zip(self.group, np.arange(0,len(self.group)))])
         return
 
     def run(self):
