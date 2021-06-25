@@ -13,8 +13,8 @@ class LieGroup:
             return np.array([u*i for i in g])
 
 class LieAlgebra:
-    def __init__(self, LieGroup):
-        self.action = LieGroup.action
+    def __init__(self):
+        pass
 
     def exp(self,y):
         return expm(y)
@@ -135,7 +135,6 @@ def solve(f,y0,t_init,t_final,h):
         manifold.y = timestepper.step(f, t_array[i - 1], manifold.y, h)
         y_array[:, i] = manifold.y
 
-# last step
     if not np.isclose(last_step, 0):
         manifold.y = timestepper.step(f, t_array[-1], manifold.y, last_step)
         y_array[:, -1] = manifold.y
