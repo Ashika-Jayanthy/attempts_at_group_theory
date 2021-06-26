@@ -1,6 +1,7 @@
 import numpy as np
 from main import *
 import math
+import matplotlib.pyplot as plt
 
 num_images = 10
 num_pixels = 20
@@ -20,18 +21,19 @@ def X_mugamma():
     X = tangent_bundle(random_image_array(num_images,num_pixels))
     return
 
-def ordered_exponential():
-    return
-
-def G(t,g,g0):
-    g_t = (ordered_exponential(-np.sum([d_lambda * g(gamma(lmbda) * X_mugamma(gamma(lmbda))) for lmbda in lmbda_values])))*g0
+def G(t,g):
+    g_t = g*t
     return g_t
 
 
 g0 = np.array([complex(0,0),complex(0,1)])
 t_i = 0
-t_f = 5
-h = 0.01
+t_f = 2
+h = .1
 
 solution = solve(G, g0, t_i, t_f, h)
-print(solution)
+print(solution[0])
+
+for x in solution[0]:
+    plt.polar([0,np.angle(x[1])],[0,np.abs(x[1])],marker='o')
+plt.show()
