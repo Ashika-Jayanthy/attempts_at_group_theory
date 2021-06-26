@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.linalg import expm
 import math
+from scipy.special import bernoulli
 
 class LieGroup:
     def __init__(self):
@@ -41,8 +42,8 @@ class LieAlgebra:
             k+=1
         return out
 
-class Sequences(LieGroup,LieAlgebra):
-    def __init__(self,sequences):
+class Sequence:
+    def __init__(self,sequence):
         self.dict = {
         'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
         'T': np.array([[0,1],[-1,0]]),
@@ -81,6 +82,22 @@ class S3Sphere:
         self._y = value
 
 
+class C2:
+    def __init(self, y = np.array([complex(0,0), complex(0,1)])):
+        self.n = y.size
+        self.y = y
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        if not np.isclose(np.square(np.abs(value[0])) + np.square(np.abs(value[1])), 1.0):
+            raise ValueError
+        self._y = value
+
+
 class RKMK4(LieGroup,LieAlgebra):
     def __init__(self):
         self.a = np.array(
@@ -96,29 +113,35 @@ class RKMK4(LieGroup,LieAlgebra):
         self.order = 4
         self.s = 4
 
-    def step(self, f, t, y, h):
+    def step(self, func, t, y, h):
 
         n = y.size
         k = np.zeros((n, self.s))
+        #print(k.shape)
 
         for i in range(self.s):
             u = np.zeros(n)
+            
 
             for j in range(i):
                 u += self.a[i, j] * k[:, j]
+                print(u.shape)
 
             u *= h
-            k[:, i] = self.dexpinv(u, f(t + self.c[i] * h, self.action(self.exp(u), y), "left"), self.order)
+            print(u.shape)
+            print(self.exp(u))
+            print(func(t + self.c[i] * h, self.action(self.exp(u), y, "left")))
+            k[:, i] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
 
         v = np.zeros(n)
         for i in range(self.s):
             v += self.b[i] * k[:, i]
 
-        return self.action(self.exp(h * v), y,"left")
+        return self.action(self.exp(h * v), y, "left")
 
-def solve(f,y0,t_init,t_final,h):
+def solve(func,y0,t_init,t_final,h):
 
-    manifold = S3Sphere(y0)
+    manifold = C2(y0)
     timestepper = RKMK4()
     n_steps, last_step = divmod((t_final - t_init), h)
     n_steps = int(n_steps)
@@ -132,11 +155,11 @@ def solve(f,y0,t_init,t_final,h):
     y_array[:, 0] = y0
 
     for i in range(1, n_steps + 1):
-        manifold.y = timestepper.step(f, t_array[i - 1], manifold.y, h)
+        manifold.y = timestepper.step(func, t_array[i - 1], manifold.y, h)
         y_array[:, i] = manifold.y
 
     if not np.isclose(last_step, 0):
-        manifold.y = timestepper.step(f, t_array[-1], manifold.y, last_step)
+        manifold.y = timestepper.step(func, t_array[-1], manifold.y, last_step)
         y_array[:, -1] = manifold.y
         t_array.append(t_final)
 
