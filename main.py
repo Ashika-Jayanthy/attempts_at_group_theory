@@ -80,7 +80,7 @@ class S3Sphere:
 
 
 class C2:
-    def __init(self, y = np.array([complex(0,0), complex(0,1)])):
+    def __init__(self, y = np.array([complex(0,0), complex(0,1)])):
         self.n = y.size
         self.y = y
 
@@ -103,10 +103,10 @@ class RKMK4(LieGroup,LieAlgebra):
                 [0.5, 0,   0,   0],
                 [0,   0.5, 0,   0],
                 [0,   0,   1.0, 0]
-            ]
+            ], dtype="complex128"
         )
-        self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6])
-        self.c = np.array([0, 0.5, 0.5, 1.0])
+        self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
+        self.c = np.array([0, 0.5, 0.5, 1.0], dtype="complex128")
         self.order = 4
         self.s = 4
 
@@ -114,12 +114,12 @@ class RKMK4(LieGroup,LieAlgebra):
 
         n = y.size
         #k = np.zeros((n, self.s))
-        k = np.zeros((self.s,n,n))
+        k = np.zeros((self.s,n,n),dtype="complex128")
         #print(k.shape)
 
         for i in range(self.s):
             #u = np.zeros(n)
-            u = np.zeros((n,n))
+            u = np.zeros((n,n),dtype="complex128")
 
             for j in range(i):
                 #u += self.a[i, j] * k[:, j]
@@ -127,11 +127,11 @@ class RKMK4(LieGroup,LieAlgebra):
                 #print(u.shape)
 
             u *= h
-
-            k[:, i] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
-
+            #print(self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order))
+            #k[:, i] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
+            k[i:] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
         #v = np.zeros(n)
-        v = np.zeros((n,n))
+        v = np.zeros((n,n),dtype="complex128")
         for i in range(self.s):
             #v += self.b[i] * k[:, i]
             v += self.b[i] * k[i, :]
@@ -149,7 +149,7 @@ def solve(func,y0,t_init,t_final,h):
 
     number_of_cols = n_steps + 1 if np.isclose(last_step, 0) else n_steps + 2
 
-    y_array = np.zeros((len(y0), number_of_cols))
+    y_array = np.zeros((len(y0), number_of_cols),dtype="complex128")
 
     y_array[:, 0] = y0
 
