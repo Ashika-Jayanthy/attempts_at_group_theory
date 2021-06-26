@@ -9,9 +9,9 @@ class LieGroup:
 
     def action(self,g,u,type):
         if type == "left":
-            return np.array([i*u for i in g])
+            return np.array([i.dot(u) for i in g])
         elif type == "right":
-            return np.array([u*i for i in g])
+            return np.array([i.dot(u) for i in g.T])
 
 class LieAlgebra:
     def __init__(self):
@@ -20,11 +20,8 @@ class LieAlgebra:
     def exp(self,y):
         return expm(y)
 
-    def commutator(self,a,b,matrix=True):
-        if matrix:
-            return np.matmul(a,b) - np.matmul(b,a)
-        else:
-            return a*b - b*a
+    def commutator(self,a,b):
+        return np.matmul(a,b) - np.matmul(b,a)
 
     def dexpinv(self,a,b,order=4):
         B = bernoulli(order)
@@ -116,26 +113,28 @@ class RKMK4(LieGroup,LieAlgebra):
     def step(self, func, t, y, h):
 
         n = y.size
-        k = np.zeros((n, self.s))
+        #k = np.zeros((n, self.s))
+        k = np.zeros((self.s,n,n))
         #print(k.shape)
 
         for i in range(self.s):
-            u = np.zeros(n)
-            
+            #u = np.zeros(n)
+            u = np.zeros((n,n))
 
             for j in range(i):
-                u += self.a[i, j] * k[:, j]
-                print(u.shape)
+                #u += self.a[i, j] * k[:, j]
+                u += self.a[i, j] * k[j, :]
+                #print(u.shape)
 
             u *= h
-            print(u.shape)
-            print(self.exp(u))
-            print(func(t + self.c[i] * h, self.action(self.exp(u), y, "left")))
+
             k[:, i] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
 
-        v = np.zeros(n)
+        #v = np.zeros(n)
+        v = np.zeros((n,n))
         for i in range(self.s):
-            v += self.b[i] * k[:, i]
+            #v += self.b[i] * k[:, i]
+            v += self.b[i] * k[i, :]
 
         return self.action(self.exp(h * v), y, "left")
 
