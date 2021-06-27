@@ -43,7 +43,7 @@ class Sequence:
     def __init__(self,sequence):
         self.dict = {
         'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
-        'T': np.array([[0,1],[-1,0]]),
+        'T': np.array([[0,-1],[1,0]]),
         'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
         'C': np.array([[complex(0,1),0],[0,complex(0,1)]])
         }
@@ -54,7 +54,7 @@ class Sequence:
         return
 
     def group2algebra(self):
-        self.algebra = np.sum([i*j for i,j in zip(self.group, np.arange(0,len(self.group)))])
+        self.algebra = np.sum([i*j for i,j in zip(self.group, np.arange(0,len(self.group)))],axis=0)
         return
 
     def run(self):
@@ -106,7 +106,7 @@ class RKMK4(LieGroup,LieAlgebra):
             ], dtype="complex128"
         )
         self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
-        self.c = np.array([0, 0.5, 0.5, 1.0], dtype="complex128")
+        self.c = np.array([0, 0.5, 0.5, 1.0])
         self.order = 4
         self.s = 4
 
