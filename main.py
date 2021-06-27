@@ -113,27 +113,19 @@ class RKMK4(LieGroup,LieAlgebra):
     def step(self, func, t, y, h):
 
         n = y.size
-        #k = np.zeros((n, self.s))
+
         k = np.zeros((self.s,n,n),dtype="complex128")
-        #print(k.shape)
 
         for i in range(self.s):
-            #u = np.zeros(n)
             u = np.zeros((n,n),dtype="complex128")
 
             for j in range(i):
-                #u += self.a[i, j] * k[:, j]
                 u += self.a[i, j] * k[j, :]
-                #print(u.shape)
-
             u *= h
-            #print(self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order))
-            #k[:, i] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
             k[i:] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
-        #v = np.zeros(n)
+
         v = np.zeros((n,n),dtype="complex128")
         for i in range(self.s):
-            #v += self.b[i] * k[:, i]
             v += self.b[i] * k[i, :]
 
         return self.action(self.exp(h * v), y, "left")
@@ -149,17 +141,17 @@ def solve(func,y0,t_init,t_final,h):
 
     number_of_cols = n_steps + 1 if np.isclose(last_step, 0) else n_steps + 2
 
-    y_array = np.zeros((len(y0), number_of_cols),dtype="complex128")
+    y_array = np.zeros((number_of_cols, len(y0)),dtype="complex128")
 
-    y_array[:, 0] = y0
+    y_array[0,:] = y0
 
     for i in range(1, n_steps + 1):
         manifold.y = timestepper.step(func, t_array[i - 1], manifold.y, h)
-        y_array[:, i] = manifold.y
+        y_array[i,:] = manifold.y
 
     if not np.isclose(last_step, 0):
         manifold.y = timestepper.step(func, t_array[-1], manifold.y, last_step)
-        y_array[:, -1] = manifold.y
+        y_array[-1,:] = manifold.y
         t_array.append(t_final)
 
     return y_array, t_array
