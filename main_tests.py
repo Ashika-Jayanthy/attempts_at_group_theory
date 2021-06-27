@@ -2,34 +2,28 @@ import numpy as np
 from main import *
 import math
 import matplotlib.pyplot as plt
+from scipy.linalg import expm
 
-num_images = 10
-num_pixels = 20
-d_lambda = 0.01
-lambda_values = np.linspace(0,1,1/d_lambda)
+genomic_sequences = ['ATG','TGC','AAA']
 
-def random_image_array(n_images,n_pixels):
+def random_image_array(num_images = 10,num_pixels = 20):
     return np.array([np.random.choice((0,255),n_pixels) for a in range(n_images)])
 
-def tangent_bundle(vector_space):
-    return
 
-def gamma(lmbda):
-    return np.array([complex(),complex()])
-
-def X_mugamma():
-    X = tangent_bundle(random_image_array(num_images,num_pixels))
+def X():
     return
 
 def G(t,g):
-    g_t = g*t
+    alg = Sequences(genomic_sequences[t])
+    grp = expm(alg)
+    g_t = np.array([grp[0,0], grp[1,0]])
     return g_t
 
 
 g0 = np.array([complex(0,0),complex(0,1)])
 t_i = 0
 t_f = 2
-h = .1
+h = 1
 
 solution = solve(G, g0, t_i, t_f, h)
 print(solution[0])
