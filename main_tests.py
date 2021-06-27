@@ -13,15 +13,14 @@ T = t_f - t_i
 def random_image_array(num_images = 10,num_pixels = 20):
     return np.array([np.random.choice((0,255),n_pixels) for a in range(n_images)])
 
-def random_sequence_evolve(sequence,n_replacements = 10, l_replacement=1):
+def random_sequence_evolve(sequence,l_replacement=1):
     replacement = ''.join(random.choice('CGTA') for _ in range(l_replacement))
     replacement_index = random.choice(np.arange(0,len(sequence)))
-    for i in range(n_replacements):
-        s = sequence[:(replacement_index-l_replacement)] + replacement + sequence[replacement_index + 1:]
-    return s
+    new_sequence = sequence[:(replacement_index)] + replacement + sequence[replacement_index + 1:]
+    return new_sequence
 
 sequence_array = []
-init_sequence = ''.join(random.choice('CGTA') for _ in range(20))
+init_sequence = ''.join(random.choice('CGTA') for _ in range(5))
 s = random_sequence_evolve(init_sequence)
 sequence_array.append(s)
 for t in range(T):
