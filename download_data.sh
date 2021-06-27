@@ -11,7 +11,7 @@ do
 
 curl 'ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/${taxonomic_group}/assembly_summary.txt' | \
 awk '{FS="\t"} !/^#/ {print $20} ' | \
-sed -r 's|(ftp://ftp.ncbi.nlm.nih.gov/genomes/all/.+/)(GCF_.+)|\1\2/\2_genomic.fna.gz|' > genomic_file
+sed 's|(ftp://ftp.ncbi.nlm.nih.gov/genomes/all/.+/)(GCF_.+)|\1\2/\2_genomic.fna.gz|' > genomic_file
 
 mkdir ${taxonomic_group[@]}
 cd ${taxonomic_group[@]}
