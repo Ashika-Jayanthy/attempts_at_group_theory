@@ -122,12 +122,28 @@ class RKMK4(LieGroup,LieAlgebra):
             for j in range(i):
                 u += self.a[i, j] * k[j, :]
             u *= h
-            k[i:] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
-
+            #k[i:] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
+            #print(self.dexpinv(u, func(t + self.c[i] * h), self.order))
+            k[i:] = self.dexpinv(u, func(t + self.c[i] * h), self.order)
         v = np.zeros((n,n),dtype="complex128")
         for i in range(self.s):
             v += self.b[i] * k[i, :]
+        #print(v)
 
+        #a = np.real(v[0,0])
+        #b = np.imag(v[0,0])
+        #c = np.real(v[1,0])
+        #d = np.imag(v[1,0])
+        #vv = a*a + b*b + c*c + d*d
+        #print(vv)
+        print(self.action(self.exp(h * v), y, "left"))
+        g = self.action(self.exp(h * v), y, "left")
+        a = np.real(g[0])
+        b = np.imag(g[0])
+        c = np.real(g[1])
+        d = np.imag(g[1])
+        vv = a*a + b*b + c*c + d*d
+        print(vv)
         return self.action(self.exp(h * v), y, "left")
 
 def solve(func,y0,t_init,t_final,h):
@@ -146,6 +162,15 @@ def solve(func,y0,t_init,t_final,h):
     y_array[0,:] = y0
 
     for i in range(1, n_steps + 1):
+        print("step",i)
+        print(manifold.y)
+        g = manifold.y
+        #a = np.real(g[0])
+        #b = np.imag(g[0])
+        #c = np.real(g[1])
+        #d = np.imag(g[1])
+        #v = a*a + b*b + c*c + d*d
+        #print(v)
         manifold.y = timestepper.step(func, t_array[i - 1], manifold.y, h)
         y_array[i,:] = manifold.y
 
