@@ -16,7 +16,7 @@ def random_image_array(num_images = 10,num_pixels = 20):
 def random_sequence_evolve(sequence,l_replacement=1):
     replacement = ''.join(random.choice('CGTA') for _ in range(l_replacement))
     replacement_index = random.choice(np.arange(0,len(sequence)))
-    new_sequence = sequence[:(replacement_index)] + replacement + sequence[replacement_index + 1:]
+    new_sequence = sequence[:replacement_index] + replacement + sequence[replacement_index + l_replacement:]
     return new_sequence
 
 sequence_array = []
@@ -29,16 +29,27 @@ for t in range(T):
 
 print(sequence_array)
 
+for seq in sequence_array:
+    gg = Sequence(seq).run()
+    g = expm(gg)
+    a = np.real(g[0,0])
+    b = np.imag(g[0,0])
+    c = np.real(g[1,0])
+    d = np.imag(g[1,0])
+    v = a*a + b*b + c*c + d*d
+    #print(v)
 
-def G(t,g):
+def G(t):
     s_t = sequence_array[int(t)]
     g = Sequence(s_t).run()
     gg = expm(g)
     g_t = np.array([gg[0,0], gg[1,0]])
-    return g_t
+    return gg
 
 
-g0 = np.array([complex(0,0),complex(0,1)])
+g = Sequence(init_sequence).run()
+gg = expm(g)
+g0 = np.array([gg[0,0],gg[1,0]])
 solution = solve(G, g0, t_i, t_f, h)
 print(solution[0])
 
