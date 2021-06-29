@@ -3,6 +3,8 @@ from scipy.linalg import expm
 import math
 from scipy.special import bernoulli
 
+def matrix_multiply(a,b):
+    return np.array([np.vdot(i,b) for i in a])
 
 def c2_to_matrix(val):
     z1,z2 = val[0],val[1]
@@ -22,10 +24,11 @@ def action(g,u,type):
     if type == "left":
         return np.array([np.vdot(i,u) for i in g])
     elif type == "right":
-        return np.array([np.vdot(i,u) for i in g.T])
+        return np.array([np.vdot(u,i) for i in g.T])
 
 def commutator(a,b):
-    return np.matmul(a,b) - np.matmul(b,a)
+    #return np.matmul(a,b) - np.matmul(b,a)
+    return matrix_multiply(a,b)
 
 
 class Sequence:
@@ -57,6 +60,7 @@ class SU2:
         stack = b
         out = B[k] * b
         k=1
+
         stack = commutator(a,stack)
         out += B[k] * stack
         k+=1
