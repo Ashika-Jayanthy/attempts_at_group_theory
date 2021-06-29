@@ -20,9 +20,9 @@ def condition_check(val, type="matrix"):
 
 def action(g,u,type):
     if type == "left":
-        return np.array([i.dot(u) for i in g])
+        return np.array([i.vdot(u) for i in g])
     elif type == "right":
-        return np.array([i.dot(u) for i in g.T])
+        return np.array([i.vdot(u) for i in g.T])
 
 def commutator(a,b):
     return np.matmul(a,b) - np.matmul(b,a)
@@ -46,7 +46,7 @@ class Sequence:
 
 class SU2:
     def __init__(self):
-        self.dtype = "complex128"
+        pass
 
     def exp(self,y):
         return expm(y)
@@ -136,36 +136,33 @@ class RKMK4(SU2):
                 [0.5, 0,   0,   0],
                 [0,   0.5, 0,   0],
                 [0,   0,   1.0, 0]
-            ], dtype=self.dtype
+            ], dtype="complex128"
         )
-        self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype=self.dtype)
+        self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
         self.c = np.array([0, 0.5, 0.5, 1.0])
         self.order = 4
         self.s = 4
-        
+        super().__init__()
+
 
     def step(self, func, t, y, h):
 
         n = y.size
-        k = np.zeros((self.s,n,n),dtype=self.dtype)
+        k = np.zeros((self.s,n,n),dtype="complex128")
 
         for i in range(self.s):
-            u = np.zeros((n,n),dtype=self.dtype)
+            u = np.zeros((n,n),dtype="complex128")
             for j in range(i):
                 u += self.a[i, j] * k[j, :]
             u *= h
             k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
-        v = np.zeros((n,n),dtype=self.dtype)
+        v = np.zeros((n,n),dtype="complex128")
         for i in range(self.s):
             v += self.b[i] * k[i, :]
 
         return action(self.exp(h * v), y, "left")
 
-def solve(func,y0,t_init,t_final,h,manifold="C2"):
-    if manifold == "C2":
-        dtype = "complex128"
-    else:
-        dtype = "float64"
+def solve(func,y0,t_init,t_final,h):
 
     manifold = C2(y0)
     timestepper = RKMK4()
@@ -176,7 +173,7 @@ def solve(func,y0,t_init,t_final,h,manifold="C2"):
 
     number_of_cols = n_steps + 1 if np.isclose(last_step, 0) else n_steps + 2
 
-    y_array = np.zeros((number_of_cols, len(y0)),dtype=dtype)
+    y_array = np.zeros((number_of_cols, len(y0)),dtype="complex128")
 
     y_array[0,:] = y0
 
