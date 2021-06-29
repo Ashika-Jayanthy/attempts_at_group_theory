@@ -20,9 +20,9 @@ def condition_check(val, type="matrix"):
 
 def action(g,u,type):
     if type == "left":
-        return np.array([i.vdot(u) for i in g])
+        return np.array([np.vdot(i,u) for i in g])
     elif type == "right":
-        return np.array([i.vdot(u) for i in g.T])
+        return np.array([np.vdot(i,u) for i in g.T])
 
 def commutator(a,b):
     return np.matmul(a,b) - np.matmul(b,a)
