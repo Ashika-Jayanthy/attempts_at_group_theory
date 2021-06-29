@@ -14,77 +14,18 @@ def matrix_to_c2(m):
 def condition_check(val, type="matrix"):
     if type == "matrix":
         a,b,c,d = np.real(val[0,0]), np.imag(val[0,0]), np.real(val[1,0]), np.imag(val[1,0])
-
     elif type == "c2":
         a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
-
     return a*a + b*b + c*c + d*d
 
-class LieGroup:
-    def __init__(self):
-        pass
+def action(g,u,type):
+    if type == "left":
+        return np.array([i.dot(u) for i in g])
+    elif type == "right":
+        return np.array([i.dot(u) for i in g.T])
 
-    def action(self,g,u,type):
-        if type == "left":
-            return np.array([i.dot(u) for i in g])
-        elif type == "right":
-            return np.array([i.dot(u) for i in g.T])
-
-
-class LieAlgebra:
-    def __init__(self):
-        pass
-
-    def exp(self,y):
-        return expm(y)
-
-    def commutator(self,a,b):
-        return np.matmul(a,b) - np.matmul(b,a)
-
-
-    def dexpinv(self,a,b,order=4):
-        B = bernoulli(order)
-        k = 0
-        stack = b
-        out = B[k] * b
-        k=1
-        stack = self.commutator(a,stack)
-        out += B[k] * stack
-        k+=1
-
-        while k<order:
-            stack = self.commutator(a,stack)
-            out += B[k] / math.factorial(k) * stack
-            k+=1
-        return out
-
-class SO3(LieAlgebra):
-    def __init__(self):
-        pass
-
-    def Amatrix(self, y):
-        b, c, d = y[0], y[1], y[2]
-        return np.array([[0, -d, c], [d, 0, -b], [-c, b, 0]])
-
-    def Bmatrix(self,y):
-        b, c, d = y[0], y[1], y[2]
-        return np.array([[b*b, b*c, b*d], [b*c, c*c, c*d], [b*d, c*d, d*d]])
-
-    def rodrigues_exp(self, y):
-        theta = np.linalg.norm(y)
-        A = self.Amatrix(y)
-        B = self.Bmatrix(y)
-        rexp = np.cos(theta)*np.eye(3) + (np.sin(theta) / theta) * A + ((1 - np.cos(theta)) / theta ** 2) * B
-        return rexp
-
-    def dexpinv(self, u, v):
-        theta = np.linalg.norm(u)
-        vv = np.array([v[2, 1], v[0, 2], v[1, 0]])
-        uu = self.Amatrix(u)
-        lhs = np.eye(3) - 0.5 * uu + (2 - theta / np.tan(0.5 * theta)) / (2 * theta ** 2) * uu
-        return self.action(lhs, vv, "left")
-
-
+def commutator(a,b):
+    return np.matmul(a,b) - np.matmul(b,a)
 
 
 class Sequence:
@@ -97,21 +38,65 @@ class Sequence:
         }
         self.sequence = sequence
 
-    def sequence2group(self):
-        self.group = np.array([self.dict[s] for s in self.sequence])
-        return
-
-    def group2algebra(self):
-        self.algebra = np.sum([i*j for i,j in zip(self.group, np.arange(0,len(self.group)))],axis=0)
-        return
-
     def run(self):
-        self.sequence2group()
-        self.group2algebra()
+        self.seqgroup = np.array([self.dict[s] for s in self.sequence])
+        self.algebra = np.sum([i*j for i,j in zip(self.seqgroup, np.arange(0,len(self.seqgroup)))],axis=0)
         return self.algebra
 
 
-class S3Sphere:
+class SU2:
+    def __init__(self):
+        self.dtype = "complex128"
+
+    def exp(self,y):
+        return expm(y)
+
+    def dexpinv(self,a,b,order=4):
+        B = bernoulli(order)
+        k = 0
+        stack = b
+        out = B[k] * b
+        k=1
+        stack = commutator(a,stack)
+        out += B[k] * stack
+        k+=1
+
+        while k<order:
+            stack = commutator(a,stack)
+            out += B[k] / math.factorial(k) * stack
+            k+=1
+        return out
+
+class SO3:
+    def __init__(self):
+        self.dtype = "float64"
+
+    def Amatrix(self, y):
+        b, c, d = y[0], y[1], y[2]
+        return np.array([[0, -d, c], [d, 0, -b], [-c, b, 0]])
+
+    def Bmatrix(self,y):
+        b, c, d = y[0], y[1], y[2]
+        return np.array([[b*b, b*c, b*d], [b*c, c*c, c*d], [b*d, c*d, d*d]])
+
+    def exp(self, y):
+        """rodrigues method"""
+        theta = np.linalg.norm(y)
+        A = self.Amatrix(y)
+        B = self.Bmatrix(y)
+        rexp = np.cos(theta)*np.eye(3) + (np.sin(theta) / theta) * A + ((1 - np.cos(theta)) / theta ** 2) * B
+        return rexp
+
+    def dexpinv(self, u, v):
+        # need to check
+        theta = np.linalg.norm(u)
+        vv = np.array([v[2, 1], v[0, 2], v[1, 0]])
+        uu = self.Amatrix(u)
+        lhs = np.eye(3) - 0.5 * uu + (2 - theta / np.tan(0.5 * theta)) / (2 * theta ** 2) * uu
+        return self.action(lhs, vv, "left")
+
+
+class S3:
     def __init__(self, y=np.array([0, 0, 0, 1])):
         self.n = y.size
         self.y = y
@@ -123,7 +108,7 @@ class S3Sphere:
     @y.setter
     def y(self, value):
         if not np.isclose(np.inner(value, value), 1.0):
-            raise ValueError(f"y does not lie on the 3-sphere. y^T . y should be one, was {np.inner(value, value)}")
+            raise ValueError
         self._y = value
 
 
@@ -143,7 +128,7 @@ class C2:
         self._y = value
 
 
-class RKMK4(LieGroup,LieAlgebra):
+class RKMK4(SU2):
     def __init__(self):
         self.a = np.array(
             [
@@ -151,31 +136,36 @@ class RKMK4(LieGroup,LieAlgebra):
                 [0.5, 0,   0,   0],
                 [0,   0.5, 0,   0],
                 [0,   0,   1.0, 0]
-            ], dtype="complex128"
+            ], dtype=self.dtype
         )
-        self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
+        self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype=self.dtype)
         self.c = np.array([0, 0.5, 0.5, 1.0])
         self.order = 4
         self.s = 4
+        
 
     def step(self, func, t, y, h):
 
         n = y.size
-        k = np.zeros((self.s,n,n),dtype="complex128")
+        k = np.zeros((self.s,n,n),dtype=self.dtype)
 
         for i in range(self.s):
-            u = np.zeros((n,n),dtype="complex128")
+            u = np.zeros((n,n),dtype=self.dtype)
             for j in range(i):
                 u += self.a[i, j] * k[j, :]
             u *= h
-            k[i:] = self.dexpinv(u, func(t + self.c[i] * h, self.action(self.exp(u), y, "left")), self.order)
-        v = np.zeros((n,n),dtype="complex128")
+            k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
+        v = np.zeros((n,n),dtype=self.dtype)
         for i in range(self.s):
             v += self.b[i] * k[i, :]
 
-        return self.action(self.exp(h * v), y, "left")
+        return action(self.exp(h * v), y, "left")
 
-def solve(func,y0,t_init,t_final,h):
+def solve(func,y0,t_init,t_final,h,manifold="C2"):
+    if manifold == "C2":
+        dtype = "complex128"
+    else:
+        dtype = "float64"
 
     manifold = C2(y0)
     timestepper = RKMK4()
@@ -186,7 +176,7 @@ def solve(func,y0,t_init,t_final,h):
 
     number_of_cols = n_steps + 1 if np.isclose(last_step, 0) else n_steps + 2
 
-    y_array = np.zeros((number_of_cols, len(y0)),dtype="complex128")
+    y_array = np.zeros((number_of_cols, len(y0)),dtype=dtype)
 
     y_array[0,:] = y0
 
