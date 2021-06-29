@@ -4,7 +4,7 @@ import math
 from scipy.special import bernoulli
 
 def matrix_multiply(a,b):
-    return np.array([np.vdot(i,b) for i in a])
+    return np.array([np.vdot(i,j) for i,j in zip(a,b.T)])
 
 def c2_to_matrix(val):
     z1,z2 = val[0],val[1]
