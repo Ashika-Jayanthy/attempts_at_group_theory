@@ -61,7 +61,7 @@ class SU2:
         kk=1
 
         stack = commutator(aa,stack)
-        out += B[kk] * stack
+        out -= B[kk] * stack
         kk+=1
 
         while kk<order:
