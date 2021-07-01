@@ -53,21 +53,21 @@ class SU2:
     def exp(self,y):
         return expm(y)
 
-    def dexpinv(self,a,b,order=4):
+    def dexpinv(self,aa,bb,order=4):
         B = bernoulli(order)
-        k = 0
-        stack = b
-        out = B[k] * b
-        k=1
+        kk = 0
+        stack = bb
+        out = B[kk] * bb
+        kk=1
 
-        stack = commutator(a,stack)
-        out += B[k] * stack
-        k+=1
+        stack = commutator(aa,stack)
+        out += B[kk] * stack
+        kk+=1
 
-        while k<order:
-            stack = commutator(a,stack)
-            out += B[k] / math.factorial(k) * stack
-            k+=1
+        while kk<order:
+            stack = commutator(aa,stack)
+            out += B[kk] / math.factorial(kk) * stack
+            kk+=1
         return out
 
 
@@ -160,10 +160,16 @@ class RKMK4(SU2):
             for j in range(i):
                 u += self.a[i, j] * k[j, :]
             u *= h
+            print("expmu",condition_check(expm(u)))
             k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
+            print([condition_check(expm(i)) for i in k])
         v = np.zeros((n,n),dtype="complex128")
+
         for i in range(self.s):
             v += self.b[i] * k[i, :]
+            #print("--")
+            #print(v)
+            #print(condition_check(expm(v)))
         return action(self.exp(h * v), y, "left")
 
 def solve(func,y0,t_init,t_final,h):
@@ -182,7 +188,9 @@ def solve(func,y0,t_init,t_final,h):
     y_array[0,:] = y0
 
     for i in range(1, n_steps + 1):
+        print("i",i)
         manifold.y = timestepper.step(func, t_array[i - 1], manifold.y, h)
+        print("-----")
         y_array[i,:] = manifold.y
 
     if not np.isclose(last_step, 0):
