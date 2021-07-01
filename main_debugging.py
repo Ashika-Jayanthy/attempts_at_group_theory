@@ -154,9 +154,9 @@ class RKMK4(SU2):
 
         n = y.size
         k = np.zeros((self.s,n,n),dtype="complex128")
-
+        u = np.zeros((n,n),dtype="complex128")
         for i in range(self.s):
-            u = np.zeros((n,n),dtype="complex128")
+            #u = np.zeros((n,n),dtype="complex128")
             for j in range(i):
                 u += self.a[i, j] * k[j, :]
             u *= h
