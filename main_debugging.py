@@ -27,9 +27,7 @@ def action(g,u,type):
         return np.array([np.vdot(u,i) for i in g.T])
 
 def commutator(a,b):
-    #return np.matmul(a,b) - np.matmul(b,a)
-    #return matrix_multiply(a,b) - matrix_multiply(b,a)
-    return (np.array([np.vdot(i,b) for i in a])) - (np.array([np.vdot(b,i) for i in a.T]))
+    return np.array([np.vdot(i,b) for i in a]) - np.array([np.vdot(b,i) for i in a.T])
 
 
 class Sequence:
@@ -71,6 +69,8 @@ class SU2:
             out += B[k] / math.factorial(k) * stack
             k+=1
         return out
+
+
 
 class SO3:
     def __init__(self):
@@ -164,7 +164,6 @@ class RKMK4(SU2):
         v = np.zeros((n,n),dtype="complex128")
         for i in range(self.s):
             v += self.b[i] * k[i, :]
-        print(action(self.exp(h * v), y, "left"))
         return action(self.exp(h * v), y, "left")
 
 def solve(func,y0,t_init,t_final,h):
@@ -183,8 +182,6 @@ def solve(func,y0,t_init,t_final,h):
     y_array[0,:] = y0
 
     for i in range(1, n_steps + 1):
-        print(manifold.y)
-        g = manifold.y
         manifold.y = timestepper.step(func, t_array[i - 1], manifold.y, h)
         y_array[i,:] = manifold.y
 
