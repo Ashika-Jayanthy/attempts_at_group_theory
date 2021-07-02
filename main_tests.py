@@ -10,6 +10,45 @@ t_f = 20
 h = 1
 T = t_f - t_i
 
+Jx3 = np.array([
+[0, 0, 0],
+[0, 0, -complex(0,1)],
+[0, complex(0,1), 0]
+])
+
+Jy3 = np.array([
+[0, 0, complex(0,1)],
+[0, 0, 0],
+[-complex(0,1), 0, 0]
+])
+
+Jz3 = np.array([
+[0, -complex(0,1), 0],
+[complex(0,1), 0, 0],
+[0, 0, 0]
+])
+
+Jx2 = (1 / 2) * np.array([
+[0, 1],
+[1, 0]
+])
+
+Jy2 = (1 / 2) * np.array([
+[0, -complex(0,1)],
+[complex(0,1), 0]
+])
+
+Jz2 = (1 / 2) * np.array([
+[1, 0],
+[0, -1]
+])
+
+def SU2(theta, J):
+    ans=0
+    for i in range(len(theta)):
+        ans+= complex(0,1) * theta[i] * J[i]
+    return expm(ans)
+
 dict = {
 'A': (1 / 2) * np.array([[0,complex(0,1)],[complex(0,1),0]]),
 'T': (1 / 2) * np.array([[0,-1],[1,0]]),
