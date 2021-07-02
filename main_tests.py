@@ -11,10 +11,10 @@ h = 1
 T = t_f - t_i
 
 dict = {
-'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
-'T': np.array([[0,-1],[1,0]]),
-'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
-'C': np.array([[complex(0,1),0],[0,complex(0,1)]])
+'A': (1 / 2) * np.array([[0,complex(0,1)],[complex(0,1),0]]),
+'T': (1 / 2) * np.array([[0,-1],[1,0]]),
+'G': (1 / 2) * np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
+'C': (1 / 2) * np.array([[complex(0,1),0],[0,complex(0,1)]])
 }
 
 T1 = (1 / np.sqrt(2)) * np.array([
