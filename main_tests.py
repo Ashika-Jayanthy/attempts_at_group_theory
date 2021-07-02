@@ -1,5 +1,5 @@
 import numpy as np
-from main import *
+from main_debugging import *
 import math
 import matplotlib.pyplot as plt
 from scipy.linalg import expm
@@ -9,6 +9,8 @@ t_i = 0
 t_f = 20
 h = 1
 T = t_f - t_i
+
+
 
 def random_image_array(num_images = 10,num_pixels = 20):
     return np.array([np.random.choice((0,255),n_pixels) for a in range(n_images)])
@@ -20,7 +22,7 @@ def random_sequence_evolve(sequence,l_replacement=1):
     return new_sequence
 
 sequence_array = []
-init_sequence = ''.join(random.choice('CGTA') for _ in range(5))
+init_sequence = ''.join(random.choice('CGTA') for _ in range(7))
 s = random_sequence_evolve(init_sequence)
 sequence_array.append(s)
 for t in range(T):
@@ -29,27 +31,16 @@ for t in range(T):
 
 print(sequence_array)
 
-for seq in sequence_array:
-    gg = Sequence(seq).run()
-    g = expm(gg)
-    a = np.real(g[0,0])
-    b = np.imag(g[0,0])
-    c = np.real(g[1,0])
-    d = np.imag(g[1,0])
-    v = a*a + b*b + c*c + d*d
-    #print(v)
 
-def G(t):
+def G(t,y):
     s_t = sequence_array[int(t)]
-    g = Sequence(s_t).run()
-    gg = expm(g)
-    g_t = np.array([gg[0,0], gg[1,0]])
-    return gg
+    seqalg = Sequence(s_t).run()
+    g_t = expm(seqalg)
+    return g_t
 
 
-g = Sequence(init_sequence).run()
-gg = expm(g)
-g0 = np.array([gg[0,0],gg[1,0]])
+firstalg = Sequence(init_sequence).run()
+g0 = expm(firstalg)
 solution = solve(G, g0, t_i, t_f, h)
 print(solution[0])
 
