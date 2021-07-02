@@ -4,10 +4,10 @@ import math
 from scipy.special import bernoulli
 
 def matrix_multiply(a,b):
-    for i,j in zip(a,b.T):
-        print(i,j)
-        print(i.shape,j.shape)
-        print(np.vdot(i,j))
+    #for i,j in zip(a,b.T):
+        #print(i,j)
+        #print(i.shape,j.shape)
+        #print(np.vdot(i,j))
     return np.array([np.vdot(i,j) for i,j in zip(a,b.T)])
 
 def c2_to_matrix(val):
@@ -60,21 +60,38 @@ class SU2:
     def exp(self,y):
         return expm(y)
 
+    def dexpinv(self, a, b, order=4):
+        out = b
+        print("out1",out)
+        c = commutator(a, b)
+        out -= (1 / 2) * c
+        print("out2",out)
+        c = commutator(a, c)
+        out += (1 / 12) * c
+        print("out3",out)
+        return out
+"""
     def dexpinv(self,aa,bb,order=4):
 
         B = bernoulli(order)
         kk = 0
+        print("kk", kk)
         out = B[kk] * bb
-        kk=1
 
+        kk=1
         stack = commutator(aa,bb)
+        print("kk",kk)
         out -= B[kk] * stack
+
         kk+=1
         while kk<order:
+            print("kk",kk)
             stack = commutator(aa,stack)
             out += B[kk] / math.factorial(kk) * stack
             kk+=1
         return out
+"""
+
 
 class SO3:
     def __init__(self):
@@ -122,7 +139,7 @@ class S3:
 
 
 class C2:
-    def __init__(self, y = np.array([[complex(0,0), complex(0,0)], [complex(0,1), complex(0,0)]])):
+    def __init__(self, y = np.array([[complex(0,0), complex(0,0)], [complex(1,0), complex(0,0)]])):
         #self.n = y.size
         self.y = y
 
@@ -167,7 +184,9 @@ class RKMK4(SU2):
 
             #print("expmu",condition_check(expm(u)))
             #print(func(t + self.c[i] * h, action(self.exp(u), y, "left")))
+            print("start dexp")
             k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
+            print("end dexp")
             #print([condition_check(expm(i)) for i in k])
 
         v = np.zeros((n,m),dtype="complex128")
