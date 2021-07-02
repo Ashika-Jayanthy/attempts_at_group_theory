@@ -4,7 +4,21 @@ import math
 
 ####
 s = 4
+h = 1
 n_sequences = 10
+
+A = np.array(
+    [
+        [0,   0,   0,   0],
+        [0.5, 0,   0,   0],
+        [0,   0.5, 0,   0],
+        [0,   0,   1.0, 0]
+    ], dtype="complex128"
+)
+b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
+c = np.array([0, 0.5, 0.5, 1.0])
+
+m1, m2, m3 = 2, 2, -1
 ####
 
 class Sequence:
@@ -45,8 +59,17 @@ for t in range(T):
 
 
 y0 = Sequence(init_sequence).run()
+y = y0
 
 for n in range(n_sequences):
-    k1 = Y(y0)
+    I1, k1 = Y(y)
+
     for i in range(2,s):
+        u[i] = h * np.sum([A[i,j] * k[j] for j in range(i-1)])
+        u_tilda[i] = u[i] + (((c[i] * h) / 6) * commutator(I1, u[i]))
+        k[i] = Y(y * expm(u_tilda[i]))
         
+    I2 = ((m1 * (k2 - I1)) + (m2 * (k3 - I1)) + (m3 * (k4 - h))) / h
+    v = h * np.sum([b[j] * k[j] for j in range(s)])
+    v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v)
+    y = y * expm(u_tilda[i])
