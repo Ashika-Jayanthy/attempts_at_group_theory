@@ -14,6 +14,13 @@ def matrix_multiply(a,b):
             ans[row,column] = np.vdot(row_value,column_value)
     return ans
 
+def su2algebracheck(matrix):
+    matrix = np.matrix(matrix)
+    ct = np.array_equal(matrix.H, -matrix)
+    if np.trace(matrix) == 0 and ct == True:
+        return True
+    return False
+
 def c2_to_matrix(val):
     z1,z2 = val[0],val[1]
     return np.array([[z1,-np.conjugate(z2)],[z2,np.conjugate(z1)]])
@@ -176,20 +183,12 @@ class RKMK4(SU2):
 
         n,m = y.shape
         k = np.zeros((self.s,n,m),dtype="complex128")
-
         for i in range(self.s):
             u = np.zeros((n,m),dtype="complex128")
             for j in range(i):
                 u += self.a[i, j] * k[j, :]
             u *= h
-
-            #print("expmu",condition_check(expm(u)))
-            #print(func(t + self.c[i] * h, action(self.exp(u), y, "left")))
-            print("start dexp")
             k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
-            print("end dexp")
-            #print([condition_check(expm(i)) for i in k])
-        print("startv")
         v = np.zeros((n,m),dtype="complex128")
         for i in range(self.s):
             v += self.b[i] * k[i, :]
