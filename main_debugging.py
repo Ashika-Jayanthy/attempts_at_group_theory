@@ -4,6 +4,10 @@ import math
 from scipy.special import bernoulli
 
 def matrix_multiply(a,b):
+    for i,j in zip(a,b.T):
+        print(i,j)
+        print(i.shape,j.shape)
+        print(np.vdot(i,j))
     return np.array([np.vdot(i,j) for i,j in zip(a,b.T)])
 
 def c2_to_matrix(val):
@@ -22,12 +26,15 @@ def condition_check(val, type="matrix"):
 
 def action(g,u,type):
     if type == "left":
-        return np.array([np.vdot(i,u) for i in g])
+        #return np.array([np.vdot(i,u) for i in g])
+        return matrix_multiply(g,u)
     elif type == "right":
-        return np.array([np.vdot(u,i) for i in g.T])
+        #return np.array([np.vdot(u,i) for i in g.T])
+        return matrix_multiply(u,g)
 
 def commutator(a,b):
-    return np.array([np.vdot(i,b) for i in a]) - np.array([np.vdot(b,i) for i in a.T])
+    #return np.array([np.vdot(i,b) for i in a]) - np.array([np.vdot(b,i) for i in a.T])
+    return matrix_multiply(a,b) - matrix_multiply(b,a)
 
 
 class Sequence:
@@ -54,23 +61,20 @@ class SU2:
         return expm(y)
 
     def dexpinv(self,aa,bb,order=4):
+
         B = bernoulli(order)
         kk = 0
-        stack = bb
         out = B[kk] * bb
         kk=1
 
-        stack = commutator(aa,stack)
+        stack = commutator(aa,bb)
         out -= B[kk] * stack
         kk+=1
-
         while kk<order:
             stack = commutator(aa,stack)
             out += B[kk] / math.factorial(kk) * stack
             kk+=1
         return out
-
-
 
 class SO3:
     def __init__(self):
@@ -118,8 +122,8 @@ class S3:
 
 
 class C2:
-    def __init__(self, y = np.array([complex(0,0), complex(0,1)])):
-        self.n = y.size
+    def __init__(self, y = np.array([[complex(0,0), complex(0,0)], [complex(0,1), complex(0,0)]])):
+        #self.n = y.size
         self.y = y
 
     @property
@@ -128,7 +132,7 @@ class C2:
 
     @y.setter
     def y(self, value):
-        if not np.isclose(np.square(np.abs(value[0])) + np.square(np.abs(value[1])), 1.0):
+        if not np.isclose(np.square(np.abs(value[0,0])) + np.square(np.abs(value[1,0])), 1.0):
             raise ValueError
         self._y = value
 
@@ -152,28 +156,27 @@ class RKMK4(SU2):
 
     def step(self, func, t, y, h):
 
-        n = y.size
-        k = np.zeros((self.s,n,n),dtype="complex128")
-        u = np.zeros((n,n),dtype="complex128")
+        n,m = y.shape
+        k = np.zeros((self.s,n,m),dtype="complex128")
+
         for i in range(self.s):
-            #u = np.zeros((n,n),dtype="complex128")
+            u = np.zeros((n,m),dtype="complex128")
             for j in range(i):
                 u += self.a[i, j] * k[j, :]
             u *= h
-            print("expmu",condition_check(expm(u)))
-            k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
-            print([condition_check(expm(i)) for i in k])
-        v = np.zeros((n,n),dtype="complex128")
 
+            #print("expmu",condition_check(expm(u)))
+            #print(func(t + self.c[i] * h, action(self.exp(u), y, "left")))
+            k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
+            #print([condition_check(expm(i)) for i in k])
+
+        v = np.zeros((n,m),dtype="complex128")
         for i in range(self.s):
             v += self.b[i] * k[i, :]
-            #print("--")
-            #print(v)
-            #print(condition_check(expm(v)))
         return action(self.exp(h * v), y, "left")
 
 def solve(func,y0,t_init,t_final,h):
-
+    nn,mm = y0.shape
     manifold = C2(y0)
     timestepper = RKMK4()
     n_steps, last_step = divmod((t_final - t_init), h)
@@ -183,14 +186,12 @@ def solve(func,y0,t_init,t_final,h):
 
     number_of_cols = n_steps + 1 if np.isclose(last_step, 0) else n_steps + 2
 
-    y_array = np.zeros((number_of_cols, len(y0)),dtype="complex128")
-
+    #y_array = np.zeros((number_of_cols, len(y0)),dtype="complex128")
+    y_array = np.zeros((number_of_cols, nn,mm), dtype="complex128")
     y_array[0,:] = y0
 
     for i in range(1, n_steps + 1):
-        print("i",i)
         manifold.y = timestepper.step(func, t_array[i - 1], manifold.y, h)
-        print("-----")
         y_array[i,:] = manifold.y
 
     if not np.isclose(last_step, 0):
