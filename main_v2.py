@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.linalg import expm
+import random
 
 def matrix_multiply(a,b):
     n1,m1 = a.shape
@@ -19,6 +20,7 @@ def commutator(a,b):
 s = 4
 h = 1
 n_sequences = 10
+
 
 A = np.array(
     [
@@ -56,7 +58,7 @@ def random_sequence_evolve(sequence,l_replacement=1):
     return new_sequence
 
 def Y(y,t):
-    y_t = matrix_multiply(y,Sequence(sequence_array[t]).run())
+    y_t = Sequence(sequence_array[t]).run()
     return y_t
 
 
@@ -64,30 +66,31 @@ sequence_array = []
 init_sequence = ''.join(random.choice('CGTA') for _ in range(7))
 ss = random_sequence_evolve(init_sequence)
 sequence_array.append(ss)
-for t in range(T):
+for t in range(n_sequences):
     ss = random_sequence_evolve(ss)
     sequence_array.append(ss)
 
 
-y0 = Sequence(init_sequence).run()
+y = Sequence(init_sequence).run()
 y_array = []
+y_array.append(y)
 
 for n in range(n_sequences):
-    k = np.zeros(s)
-    I1, k[0] = Y(y,n)
+    k = np.zeros((s,2,2), dtype="complex128")
+    I1 = Y(y,n)
+    k[0] = Y(y,n)
 
     for i in range(2,s):
-        u = np.zeros(s-2,2,2)
-        u_tilda = np.zeros(s-2,2,2)
-        u[i] = h * np.sum([A[i,j] * k[j] for j in range(i-1)])
-        u_tilda[i] = u[i] + (((c[i] * h) / 6) * commutator(I1, u[i]))
-        k[i-1] = Y(matrix_multiply(y, expm(u_tilda[i])), n)
+        u = np.zeros((s-2,2,2), dtype="complex128")
+        u_tilda = np.zeros((s-2,2,2), dtype="complex128")
+        u[i-1] = h * np.sum([A[i-1,j] * k[j] for j in range(i-1)])
+        u_tilda[i-1] = u[i-1] + (((c[i-1] * h) / 6) * commutator(I1, u[i-1]))
+        k[i-1] = Y(matrix_multiply(y, expm(u_tilda[i-1])), n)
 
-    v = np.zeros(s-2,2,2)
-    v_tilda = np.zeros(s-2,2,2)
+
     I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - h))) / h
     v = h * np.sum([b[j] * k[j] for j in range(s)])
-    v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v)
+    v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
     y_array.append(y)
 
