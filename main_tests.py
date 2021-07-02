@@ -53,9 +53,9 @@ def seq_vector(sequence):
             t_indices.append(n)
         elif s == 'G':
             g_indices.append(n)
-    a = dict['A'] * np.sum(a_indices)
-    t = dict['T'] * np.sum(t_indices)
-    g = dict['C'] * np.sum(g_indices)
+    a = np.sum(a_indices)
+    t = np.sum(t_indices)
+    g = np.sum(g_indices)
     return np.array([a,t,g])
 
 
