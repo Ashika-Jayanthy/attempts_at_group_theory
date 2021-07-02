@@ -10,7 +10,30 @@ t_f = 20
 h = 1
 T = t_f - t_i
 
+dict = {
+'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
+'T': np.array([[0,-1],[1,0]]),
+'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
+'C': np.array([[complex(0,1),0],[0,complex(0,1)]])
+}
 
+T1 = (1 / np.sqrt(2)) * np.array([
+[0, 1, 0],
+[1, 0, 1],
+[0, 1, 0]
+])
+
+T2 = (1 / np.sqrt(2)) * np.array([
+[0, -complex(0,1), 0],
+[complex(0,1), 0, -complex(0,1)],
+[0, complex(0,1), 0]
+])
+
+T3 = np.array([
+[1, 0, 0],
+[0, 0, 0],
+[0, 0, -1]
+])
 
 def random_image_array(num_images = 10,num_pixels = 20):
     return np.array([np.random.choice((0,255),n_pixels) for a in range(n_images)])
@@ -20,6 +43,21 @@ def random_sequence_evolve(sequence,l_replacement=1):
     replacement_index = random.choice(np.arange(0,len(sequence)))
     new_sequence = sequence[:replacement_index] + replacement + sequence[replacement_index + l_replacement:]
     return new_sequence
+
+def seq_vector(sequence):
+    a_indices, t_indices, g_indices = [], [], []
+    for n,s in enumerate(sequence):
+        if s == 'A':
+            a_indices.append(n)
+        elif s == 'T':
+            t_indices.append(n)
+        elif s == 'G':
+            g_indices.append(n)
+    a = dict['A'] * np.sum(a_indices)
+    t = dict['T'] * np.sum(t_indices)
+    g = dict['C'] * np.sum(g_indices)
+    return np.array([a,t,g])
+
 
 sequence_array = []
 init_sequence = ''.join(random.choice('CGTA') for _ in range(7))
