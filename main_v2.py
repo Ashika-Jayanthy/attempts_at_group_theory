@@ -80,16 +80,16 @@ for n in range(n_sequences):
     I1 = Y(y,n)
     k[0] = Y(y,n)
 
-    for i in range(2,s):
+    for i in range(0,2):
         u = np.zeros((s-2,2,2), dtype="complex128")
         u_tilda = np.zeros((s-2,2,2), dtype="complex128")
-        u[i-1] = h * np.sum([A[i-1,j] * k[j] for j in range(i-1)])
-        u_tilda[i-1] = u[i-1] + (((c[i-1] * h) / 6) * commutator(I1, u[i-1]))
-        k[i-1] = Y(matrix_multiply(y, expm(u_tilda[i-1])), n)
+        u[i] = h * np.sum([A[i+2,j] * k[j] for j in range(i)], axis=0)
+        u_tilda[i] = u[i] + (((c[i] * h) / 6) * commutator(I1, u[i]))
+        k[i+1] = Y(matrix_multiply(y, expm(u_tilda[i])), n)
 
 
     I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - h))) / h
-    v = h * np.sum([b[j] * k[j] for j in range(s)])
+    v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
     y_array.append(y)
