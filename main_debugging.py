@@ -3,6 +3,16 @@ from scipy.linalg import expm
 import math
 from scipy.special import bernoulli
 
+def matrix_vector_multiply(m,v,vector_type="row"):
+    if vector_type == "row":
+        return np.array([np.vdot(v,i) for i in m.T])
+    elif vector_type == "column":
+        return np.array([np.vdot(i,v) for i in m])
+    return
+
+def vector_multiply(v1,v2):
+    return np.vdot(v1,v2)
+
 def matrix_multiply(a,b):
     n1,m1 = a.shape
     n2,m2 = b.shape
@@ -35,11 +45,24 @@ def condition_check(val, type="matrix"):
         a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
     return a*a + b*b + c*c + d*d
 
-def action(g,u,type):
-    if type == "left":
-        return matrix_multiply(g,u)
-    elif type == "right":
-        return matrix_multiply(u,g)
+def action(g,u,type, mult_type = "mm"):
+    if mult_type == "mm":
+        if type == "left":
+            return matrix_multiply(g,u)
+        elif type == "right":
+            return matrix_multiply(u,g)
+
+    elif mult_type == "mv":
+        if type == "left":
+            return matrix_vector_multiply(g,u,"column")
+        elif type == "right":
+            return matrix_vector_multiply(g,u, "row")
+
+    elif mult_type == "vv":
+        if type == "left":
+            return vector_multiply(g,u)
+        elif type == "right":
+            return vector_multiply(u,g)
 
 def commutator(a,b):
     return matrix_multiply(a,b) - matrix_multiply(b,a)
@@ -154,7 +177,7 @@ class C2:
 
     @y.setter
     def y(self, value):
-        if not np.isclose(np.square(np.abs(value[0,0])) + np.square(np.abs(value[1,0])), 1.0):
+        if not np.isclose(np.square(np.abs(value[0])) + np.square(np.abs(value[1])), 1.0):
             raise ValueError
         self._y = value
 
@@ -177,19 +200,20 @@ class RKMK4(SU2):
 
     def step(self, func, t, y, h):
         n = y.size
-        k = np.zeros((n, self.s))
+        k = np.zeros((n, self.s),dtype="complex128")
         for i in range(self.s):
-            u = np.zeros(n)
+            u = np.zeros(n,dtype="complex128")
             for j in range(i):
                 u += self.a[i, j] * k[:, j]
             u *= h
+            print(u.shape)
             k[:, i] = self.dexpinv(
-                u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order
+                u, func(t + self.c[i] * h, action(u, y, "left")), self.order
             )
-        v = np.zeros(n)
+        v = np.zeros(n,dtype="complex128")
         for i in range(self.s):
             v += self.b[i] * k[:, i]
-        return action(self.exp(h * v), y, "left")
+        return action(h * v, y, "left")
 
 """
     def step(self, func, t, y, h):
@@ -212,7 +236,7 @@ class RKMK4(SU2):
 
 
 def solve(func,y0,t_init,t_final,h):
-    n,m = y0.shape
+    print(y0)
     manifold = C2(y0)
     timestepper = RKMK4()
     n_steps, last_step = divmod((t_final - t_init), h)
@@ -222,8 +246,7 @@ def solve(func,y0,t_init,t_final,h):
 
     number_of_cols = n_steps + 1 if np.isclose(last_step, 0) else n_steps + 2
 
-    y_array = np.zeros((n,m, number_of_cols) ,dtype="complex128")
-    #y_array = np.zeros((number_of_cols, nn,mm), dtype="complex128")
+    y_array = np.zeros((len(y0),number_of_cols),dtype="complex128")
     y_array[:,0] = y0
 
     for i in range(1, n_steps + 1):
