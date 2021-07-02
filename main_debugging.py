@@ -4,11 +4,15 @@ import math
 from scipy.special import bernoulli
 
 def matrix_multiply(a,b):
-    #for i,j in zip(a,b.T):
-        #print(i,j)
-        #print(i.shape,j.shape)
-        #print(np.vdot(i,j))
-    return np.array([np.vdot(i,j) for i,j in zip(a,b.T)])
+    n1,m1 = a.shape
+    n2,m2 = b.shape
+    ans = np.zeros((n1,m2),dtype="complex128")
+    for row in range(n1):
+        row_value = a[row]
+        for column in range(m2):
+            column_value = b.T[column]
+            ans[row,column] = np.vdot(row_value,column_value)
+    return ans
 
 def c2_to_matrix(val):
     z1,z2 = val[0],val[1]
@@ -62,13 +66,10 @@ class SU2:
 
     def dexpinv(self, a, b, order=4):
         out = b
-        print("out1",out)
         c = commutator(a, b)
         out -= (1 / 2) * c
-        print("out2",out)
         c = commutator(a, c)
         out += (1 / 12) * c
-        print("out3",out)
         return out
 """
     def dexpinv(self,aa,bb,order=4):
@@ -188,7 +189,7 @@ class RKMK4(SU2):
             k[i:] = self.dexpinv(u, func(t + self.c[i] * h, action(self.exp(u), y, "left")), self.order)
             print("end dexp")
             #print([condition_check(expm(i)) for i in k])
-
+        print("startv")
         v = np.zeros((n,m),dtype="complex128")
         for i in range(self.s):
             v += self.b[i] * k[i, :]
