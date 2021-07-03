@@ -3,6 +3,7 @@ from scipy.linalg import expm
 import random
 
 
+
 def matrix_multiply(a,b):
     n1,m1 = a.shape
     n2,m2 = b.shape
