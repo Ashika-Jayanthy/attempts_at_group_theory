@@ -16,9 +16,16 @@ def matrix_multiply(a,b):
 def commutator(a,b):
     return matrix_multiply(a,b)
 
+def condition_check(val, type="matrix"):
+    if type == "matrix":
+        a,b,c,d = np.real(val[0,0]), np.imag(val[0,0]), np.real(val[1,0]), np.imag(val[1,0])
+    elif type == "c2":
+        a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
+    return a*a + b*b + c*c + d*d
+
 ####
 s = 4
-h = 1
+h = .000001
 n_sequences = 10
 
 
@@ -59,7 +66,7 @@ def random_sequence_evolve(sequence,l_replacement=1):
 
 def Y(y,t):
     y_t = Sequence(sequence_array[t]).run()
-    return y_t
+    return expm(y_t)
 
 
 sequence_array = []
@@ -71,7 +78,7 @@ for t in range(n_sequences):
     sequence_array.append(ss)
 
 
-y = Sequence(init_sequence).run()
+y = expm(Sequence(init_sequence).run())
 y_array = []
 y_array.append(y)
 
@@ -84,7 +91,7 @@ for n in range(n_sequences):
         u = np.zeros((s-2,2,2), dtype="complex128")
         u_tilda = np.zeros((s-2,2,2), dtype="complex128")
         u[i] = h * np.sum([A[i+2,j] * k[j] for j in range(i)], axis=0)
-        u_tilda[i] = u[i] + (((c[i] * h) / 6) * commutator(I1, u[i]))
+        u_tilda[i] = u[i] + (((c[i+2] * h) / 6) * commutator(I1, u[i]))
         k[i+1] = Y(matrix_multiply(y, expm(u_tilda[i])), n)
 
 
@@ -95,3 +102,6 @@ for n in range(n_sequences):
     y_array.append(y)
 
 print(y_array)
+
+for i in y_array:
+    print(condition_check(i))
