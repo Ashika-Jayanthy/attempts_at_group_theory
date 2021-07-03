@@ -27,8 +27,8 @@ def condition_check(val, type="matrix"):
 
 ####
 s = 4
-h = 1
-n_sequences = 60
+h = 1e-3
+n_sequences = 5
 
 
 A = np.array(
@@ -66,14 +66,11 @@ def random_sequence_evolve(sequence,l_replacement=1):
     new_sequence = sequence[:replacement_index] + replacement + sequence[replacement_index + l_replacement:]
     return new_sequence
 
-"""
+
 def Y(y,t):
     y_t = Sequence(sequence_array[t]).run()
     return expm(y_t)
-"""
 
-def Y(y,t):
-    return 2*y*t
 
 sequence_array = []
 init_sequence = ''.join(random.choice('CGTA') for _ in range(7))
@@ -84,9 +81,7 @@ for t in range(n_sequences):
     sequence_array.append(ss)
 
 
-#y = expm(Sequence(init_sequence).run())
-
-y = expm(np.array([[0,complex(0,1)],[complex(0,1),0]]))
+y = expm(Sequence(init_sequence).run())
 y_array = []
 y_array.append(y)
 
