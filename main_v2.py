@@ -16,7 +16,7 @@ def matrix_multiply(a,b):
     return ans
 
 def commutator(a,b):
-    return matrix_multiply(a,b)
+    return matrix_multiply(a,b) - matrix_multiply(b,a)
 
 def condition_check(val, type="matrix"):
     if type == "matrix":
@@ -27,7 +27,7 @@ def condition_check(val, type="matrix"):
 
 ####
 s = 4
-h = .0000001
+h = 1
 n_sequences = 60
 
 
@@ -103,17 +103,17 @@ for n in range(n_sequences):
         u_tilda = np.zeros((s-2,2,2), dtype="complex128")
 
         u[i] = h * np.sum([A[i+2,j] * k[j] for j in range(i)], axis=0)
-        u_tilda[i] = u[i] + (((c[i+2] * h) / 6.) * commutator(I1, u[i]))
+        u_tilda[i] = u[i] + (((c[i+2] * h) / 6) * commutator(I1, u[i]))
         k[i+1] = Y(matrix_multiply(y, expm(u_tilda[i])), n)
 
 
     I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - h))) / h
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
-    v_tilda = v + ((h / 4.) * commutator(I1,v)) + ((h**2 / 24.) * commutator(I2,v))
+    v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
     y_array.append(y)
 
-print(y_array)
 
 for i in y_array:
+    print(i)
     print(condition_check(i))
