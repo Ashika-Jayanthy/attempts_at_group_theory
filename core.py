@@ -1,8 +1,26 @@
-import numpy as np
 from scipy.linalg import expm
+import numpy as np
 import random
 
 
+####
+s = 4
+A = np.array(
+    [
+        [0,   0,   0,   0],
+        [0.5, 0,   0,   0],
+        [0,   0.5, 0,   0],
+        [0,   0,   1.0, 0]
+    ], dtype="complex128"
+)
+b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
+c = np.array([0, 0.5, 0.5, 1.0])
+
+m1, m2, m3 = 2, 2, -1
+####
+
+def DNA(l):
+    return ''.join(random.choice('CGTA') for _ in range(l))
 
 def matrix_multiply(a,b):
     n1,m1 = a.shape
@@ -25,49 +43,6 @@ def condition_check(val, type="matrix"):
         a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
     return a*a + b*b + c*c + d*d
 
-####
-s = 4
-A = np.array(
-    [
-        [0,   0,   0,   0],
-        [0.5, 0,   0,   0],
-        [0,   0.5, 0,   0],
-        [0,   0,   1.0, 0]
-    ], dtype="complex128"
-)
-b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
-c = np.array([0, 0.5, 0.5, 1.0])
-
-m1, m2, m3 = 2, 2, -1
-####
-
-class Sequence:
-    def __init__(self,sequence):
-        self.dict = {
-        'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
-        'T': np.array([[0,-1],[1,0]]),
-        'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
-        'C': np.array([[complex(0,1),0],[0,complex(0,1)]])
-        }
-        self.sequence = sequence
-
-    def run(self):
-        self.seqgroup = np.array([self.dict[s] for s in self.sequence])
-        self.algebra = np.sum([i*j for i,j in zip(self.seqgroup, np.arange(0,len(self.seqgroup)))],axis=0)
-        return self.algebra
-
-def random_sequence_evolve(sequence,l_replacement=1):
-    replacement = ''.join(random.choice('CGTA') for _ in range(l_replacement))
-    replacement_index = random.choice(np.arange(0,len(sequence)))
-    new_sequence = sequence[:replacement_index] + replacement + sequence[replacement_index + l_replacement:]
-    return new_sequence
-
-
-def Y(y,t):
-    y_t = Sequence(sequence_array[t]).run()
-    return expm(y_t)
-
-
 def rkmk_step(Y,y0,h=1e-10):
     k = np.zeros((s,2,2), dtype="complex128")
     I1 = Y(y,n)
@@ -85,23 +60,29 @@ def rkmk_step(Y,y0,h=1e-10):
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
+    if not np.isclose(condition_check(y),1.):
+        raise ValueError
+    else:
+        return y
+
+def random_sequence_evolve(sequence,l_replacement=1):
+    replacement = ''.join(random.choice('CGTA') for _ in range(l_replacement))
+    replacement_index = random.choice(np.arange(0,len(sequence)))
+    new_sequence = sequence[:replacement_index] + replacement + sequence[replacement_index + l_replacement:]
+    return new_sequence
 
 
+class Sequence:
+    def __init__(self,sequence):
+        self.dict = {
+        'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
+        'T': np.array([[0,-1],[1,0]]),
+        'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
+        'C': np.array([[complex(0,1),0],[0,complex(0,1)]])
+        }
+        self.sequence = sequence
 
-sequence_array = []
-init_sequence = ''.join(random.choice('CGTA') for _ in range(7))
-ss = random_sequence_evolve(init_sequence)
-sequence_array.append(ss)
-for t in range(n_sequences):
-    ss = random_sequence_evolve(ss)
-    sequence_array.append(ss)
-
-
-y = expm(Sequence(init_sequence).run())
-y_array = []
-y_array.append(y)
-
-if not np.isclose(condition_check(y),1.):
-    raise ValueError
-else:
-    y_array.append(y)
+    def run(self):
+        self.seqgroup = np.array([self.dict[s] for s in self.sequence])
+        self.algebra = np.sum([i*j for i,j in zip(self.seqgroup, np.arange(0,len(self.seqgroup)))],axis=0)
+        return self.algebra
