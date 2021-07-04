@@ -4,6 +4,7 @@ from Bio import SeqIO
 from matplotlib import pyplot as plt
 from scipy.linalg import expm
 
+# Data: https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/
 
 data_dir = "./Data"
 fig_dir = "./Figures"
@@ -22,10 +23,10 @@ for record in SeqIO.parse(f"{data_dir}/viral.3.1.genomic.fna", "fasta"):
 n_sequences = len(virus_genomic_sequences)
 y_array = []
 
-for n in n_sequences:
+for n in range(n_sequences):
     seq = virus_genomic_sequences[n]
     y = expm(Sequence(seq).run())
-    next_y = rkmk_step(Y,y)
+    next_y = rkmk_step(Y,y,n)
     y_array.append(next_y)
 
 
