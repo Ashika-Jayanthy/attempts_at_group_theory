@@ -67,7 +67,8 @@ def rkmk_step(Y,y,n,h=1e-10):
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
     if not np.isclose(condition_check(y),1.):
-        raise ValueError
+        #raise ValueError
+        return 'NaN'
     else:
         return y
 
