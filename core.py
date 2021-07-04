@@ -17,6 +17,11 @@ b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6], dtype="complex128")
 c = np.array([0, 0.5, 0.5, 1.0])
 
 m1, m2, m3 = 2, 2, -1
+
+generators = np.array([np.array([[0,complex(0,1)],[complex(0,1),0]]),
+np.array([[0,-1],[1,0]]),
+np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
+np.array([[complex(0,1),0],[0,complex(0,1)]])])
 ####
 
 def DNA(l):
@@ -78,7 +83,8 @@ class Sequence:
         'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
         'T': np.array([[0,-1],[1,0]]),
         'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
-        'C': np.array([[complex(0,1),0],[0,complex(0,1)]])
+        'C': np.array([[complex(0,1),0],[0,complex(0,1)]]),
+        'N': random.choice(generators)
         }
         self.sequence = sequence
 
