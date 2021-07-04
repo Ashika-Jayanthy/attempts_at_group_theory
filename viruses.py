@@ -4,6 +4,7 @@ from Bio import SeqIO
 from matplotlib import pyplot as plt
 from scipy.linalg import expm
 
+
 # Data: https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/
 
 data_dir = "./Data"
