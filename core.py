@@ -1,7 +1,7 @@
 from scipy.linalg import expm
 import numpy as np
 import random
-
+import collections
 
 ####
 s = 4
@@ -85,11 +85,10 @@ class Sequence:
         'T': np.array([[0,-1],[1,0]]),
         'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
         'C': np.array([[complex(0,1),0],[0,complex(0,1)]]),
-        'N': random.choice(generators)
         }
         self.sequence = sequence
 
     def run(self):
-        self.seqgroup = np.array([self.dict[s] for s in self.sequence])
+        self.seqgroup = np.array([self.dict[s] if s in self.dict.keys() else random.choice(generators) for s in self.sequence]) #check source of non-N read errors
         self.algebra = np.sum([i*j for i,j in zip(self.seqgroup, np.arange(0,len(self.seqgroup)))],axis=0)
         return self.algebra
