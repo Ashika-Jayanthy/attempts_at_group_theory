@@ -9,9 +9,7 @@ from scipy.linalg import expm
 data_dir = "./Data"
 fig_dir = "./Figures"
 
-def Y(y,t):
-    y_t = Sequence(sequence_array[t]).run()
-    return expm(y_t)
+
 
 # Load data
 virus_genomic_sequences = []
@@ -20,13 +18,17 @@ for record in SeqIO.parse(f"{data_dir}/viral.3.1.genomic.fna", "fasta"):
     virus_names.append(' '.join([i for i in record.description.split(" ")[1:]]))
     virus_genomic_sequences.append(record.seq.upper())
 
-print(virus_names)
+def Y(t):
+    seq = virus_genomic_sequences[t]
+    y_t = expm(Sequence(seq).run())
+    return y_t
+
 
 n_sequences = len(virus_genomic_sequences)
 y_array = []
 
 for n in range(n_sequences):
-    seq = virus_genomic_sequences[n]
-    y = expm(Sequence(seq).run())
+    y = Y(n)
     next_y = rkmk_step(Y,y,n)
     y_array.append(next_y)
+    print(n)
