@@ -43,7 +43,7 @@ def condition_check(val, type="matrix"):
         a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
     return a*a + b*b + c*c + d*d
 
-def rkmk_step(Y,y0,h=1e-10):
+def rkmk_step(Y,y0,n,h=1e-10):
     k = np.zeros((s,2,2), dtype="complex128")
     I1 = Y(y,n)
     k[0] = Y(y,n)
