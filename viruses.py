@@ -31,5 +31,6 @@ for n in range(n_sequences):
     y = Y(n)
     next_y = rkmk_step(Y,y,n)
     y_array.append(next_y)
+    print(f"{n} of {len(virus_names)}")
 
 numpy.savetxt("y_array_test.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
