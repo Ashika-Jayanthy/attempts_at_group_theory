@@ -1,27 +1,11 @@
-from Bio.Align.Applications import ClustalwCommandline
 from Bio.Align.Applications import MuscleCommandline
-from Bio import AlignIO
-from Bio import SeqIO
-import random
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+import glob
 
+indir = "./Data/sequence_by_family"
+outdir = "./Data/alignments"
 
-
-n_seqs = 5
-length = 5
-def DNA(l):
-    return ''.join(random.choice('CGTA') for _ in range(l))
-
-records = []
-
-for n in range(n_seqs):
-    records.append(SeqRecord(Seq(DNA(length)),id=str(n)))
-
-with open("test.fasta", "w") as output_handle:
-    SeqIO.write(records, output_handle, "fasta")
-
-
-
-muscle_cline = MuscleCommandline(input="test.fasta",out="outest.fasta",)
-muscle_cline()
+files = glob.glob(f"{indir}/*")
+for family_fasta in files:
+    name = family_fasta.split("/")[-1].split(".")[0]
+    muscle_cline = MuscleCommandline(input=f"indir/{family_fasta}.fasta",out=f"outdir/{name}.aligned.fasta",)
+    muscle_cline()
