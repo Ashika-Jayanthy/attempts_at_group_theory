@@ -9,6 +9,10 @@ import random
 indir = "./Data/hmm_sequences/"
 outdir = "./Data/yarrays"
 
+
+def matrix_to_c2(m):
+    return np.array([m[0,0],m[1,0]])
+
 def pairwise_alignment(s1,s2):
     score = pairwise2.align.globalxx(s1, s2, score_only=True, one_alignment_only=True)
     return score
@@ -18,20 +22,21 @@ files = glob.glob(f"{indir}/*")
 
 
 for ff,file in enumerate(files):
-    ordered_sequences = []
+
     print(f"{ff} of {len(files)}")
     sequences = []
     for record in SeqIO.parse(file,"fasta"):
         sequences.append(record.seq.upper())
+
     n = len(sequences)
     distances = np.zeros((n,n))
-
     for i in range(n):
         for j in range(i+1,n):
             align_score = pairwise_alignment(sequences[i],sequences[j])
             distances[i,j] = align_score
             distances[j,i] = align_score
 
+    ordered_sequences = []
     idx = random.choice(np.arange(n))
     distances[:,idx] = 0
     ordered_sequences.append(sequences[idx])
@@ -39,8 +44,6 @@ for ff,file in enumerate(files):
         idx = np.argmax(distances[idx])
         distances[:,idx] = 0
         ordered_sequences.append(sequences[idx])
-
-
 
 
     def Y(t):
@@ -55,8 +58,7 @@ for ff,file in enumerate(files):
     for n in range(n_sequences):
         y = Y(n)
         next_y = rkmk_step(Y,y,n)
-        y_array.append(next_y)
+        y_array.append(matrix_to_c2(next_y))
 
 
-    for i in range(len(y_array)):
-        np.savetxt(f"{outdir}/f{ff}_{i}_yarray.txt", y_array[i], fmt='%.18e', delimiter=' ', newline='\n')
+    np.savetxt(f"{outdir}/f{ff}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
