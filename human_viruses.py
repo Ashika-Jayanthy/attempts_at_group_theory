@@ -15,9 +15,10 @@ def pairwise_alignment(s1,s2):
 
 files = glob.glob(f"{indir}/*")
 
-ordered_sequences = []
+
 
 for ff,file in enumerate(files):
+    ordered_sequences = []
     print(f"{ff} of {len(files)}")
     sequences = []
     for record in SeqIO.parse(file,"fasta"):
