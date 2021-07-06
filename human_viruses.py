@@ -21,7 +21,7 @@ for ff,file in enumerate(files):
     print(f"{ff} of {len(files)}")
     sequences = []
     for record in SeqIO.parse(file,"fasta"):
-        sequences.append(record.seq)
+        sequences.append(record.seq.upper())
     n = len(sequences)
     distances = np.zeros((n,n))
 
