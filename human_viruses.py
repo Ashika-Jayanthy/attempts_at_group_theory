@@ -34,9 +34,7 @@ for file in files[0:10]:
     ordered_sequences.append(sequences[idx])
     while len(ordered_sequences)<len(sequences):
         new_idx = np.argmax(distances[idx])
-        distances[idx,new_idx] = 0
-        distances[new_idx,idx] = 0
-        print(distances)
+        distances[:,new_idx] = 0
         ordered_sequences.append(sequences[new_idx])
         idx = new_idx
         print(idx)
