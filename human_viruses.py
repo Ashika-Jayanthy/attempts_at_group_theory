@@ -27,11 +27,14 @@ def per_thread(start,stop):
             sequences.append(record.seq.upper())
         n = len(sequences)
         distances = np.zeros((n,n))
+        print(f"{start}:{stop} Calculating distances..")
         for i in range(n):
             for j in range(i+1,n):
                 align_score = pairwise_alignment(sequences[i],sequences[j])
                 distances[i,j] = align_score
                 distances[j,i] = align_score
+
+        print(f"{start}:{stop} Ordering sequences..")
         ordered_sequences = []
         idx = random.choice(np.arange(n))
         distances[:,idx] = 0
@@ -40,6 +43,8 @@ def per_thread(start,stop):
             idx = np.argmax(distances[idx])
             distances[:,idx] = 0
             ordered_sequences.append(sequences[idx])
+
+        print(f"{start}:{stop} Running RKMK..")
         def Y(t):
             seq = ordered_sequences[t]
             y_t = expm(Sequence(seq).run())
@@ -50,6 +55,7 @@ def per_thread(start,stop):
             y = Y(n)
             next_y = rkmk_step(Y,y,n)
             y_array.append(matrix_to_c2(next_y))
+        print(f"{start}:{stop} Writing output..")
         np.savetxt(f"{outdir}/f{ff}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
         ff+=1
         return
