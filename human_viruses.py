@@ -62,9 +62,9 @@ def per_thread(start,stop):
         print(f"{start}:{stop} Writing output..")
         np.savetxt(f"{outdir}/f{file_num}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
 
-        return
+    return
 
 
-for start_file_num in range(1,1001,50):
-    thread = threading.Thread(target=per_thread, name = str(start_file_num), args=(start_file_num,start_file_num+50))
+for start_file_num in range(1,1001,100):
+    thread = threading.Thread(target=per_thread, name = str(start_file_num), args=(start_file_num,start_file_num+100))
     thread.start()
