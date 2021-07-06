@@ -18,6 +18,7 @@ files = glob.glob(f"{indir}/*")
 ordered_sequences = []
 
 for ff,file in enumerate(files):
+    print(f"{ff} of {len(files)}")
     sequences = []
     for record in SeqIO.parse(file,"fasta"):
         sequences.append(record.seq)
@@ -54,7 +55,7 @@ for ff,file in enumerate(files):
         y = Y(n)
         next_y = rkmk_step(Y,y,n)
         y_array.append(next_y)
-        print(f"{n} of {n_sequences}")
 
-    for i in y_array:
+
+    for i in range(len(y_array)):
         np.savetxt(f"{outdir}/f{ff}_{i}_yarray.txt", y_array[i], fmt='%.18e', delimiter=' ', newline='\n')
