@@ -10,7 +10,7 @@ outdir = "./Data/background_yarrays"
 
 
 def DNA(l):
-    return ''.join([random.choice('CGTA')])
+    return ''.join([random.choice('CGTA') for i in range(l)])
 
 files = glob.glob(f"{indir}/*")
 lengths = []
