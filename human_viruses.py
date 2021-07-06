@@ -36,10 +36,10 @@ for ff,file in enumerate(files):
     distances[:,idx] = 0
     ordered_sequences.append(sequences[idx])
     while len(ordered_sequences)<len(sequences)-1:
-        new_idx = np.argmax(distances[idx])
-        distances[:,new_idx] = 0
-        ordered_sequences.append(sequences[new_idx])
-        idx = new_idx
+        idx = np.argmax(distances[idx])
+        distances[:,idx] = 0
+        ordered_sequences.append(sequences[idx])
+
 
 
 
