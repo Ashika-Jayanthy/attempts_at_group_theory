@@ -30,8 +30,12 @@ for file in files[0:10]:
             distances[j,i] = align_score
 
     idx = random.choice(np.arange(n))
+    print(idx)
+    indexes = []
+    indexes.append(idx)
     ordered_sequences.append(sequences[idx])
     while len(ordered_sequences)<len(sequences):
-        idx = np.where(distances[idx]==np.min(distances[np.nonzero(distances[idx])]))
+        idx = np.argmax(distances[np.mask(distances[idx],indexes)])
+        indexes.append(idx)
         print(idx)
         ordered_sequences.append(sequences[idx])
