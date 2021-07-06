@@ -40,7 +40,7 @@ for ff,file in enumerate(files):
     idx = random.choice(np.arange(n))
     distances[:,idx] = 0
     ordered_sequences.append(sequences[idx])
-    while len(ordered_sequences)<len(sequences)-1:
+    while len(ordered_sequences)<len(sequences):
         idx = np.argmax(distances[idx])
         distances[:,idx] = 0
         ordered_sequences.append(sequences[idx])
