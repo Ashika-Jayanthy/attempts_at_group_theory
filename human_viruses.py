@@ -19,12 +19,16 @@ def pairwise_alignment(s1,s2):
     return score
 
 def per_thread(start,stop):
-    ff = start
-    for file in files[start:stop]:
-        print(f"{ff} of {start}:{stop}")
+
+    for file_num in range(start,stop):
+        print(f"{file_num} of {start}:{stop}")
+
+        file = open(f"./Data/hmm_sequences/{file_num}.fasta",'r')
         sequences = []
         for record in SeqIO.parse(file,"fasta"):
             sequences.append(record.seq.upper())
+        file.close()
+
         n = len(sequences)
         distances = np.zeros((n,n))
         print(f"{start}:{stop} Calculating distances..")
@@ -56,11 +60,11 @@ def per_thread(start,stop):
             next_y = rkmk_step(Y,y,n)
             y_array.append(matrix_to_c2(next_y))
         print(f"{start}:{stop} Writing output..")
-        np.savetxt(f"{outdir}/f{ff}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
-        ff+=1
+        np.savetxt(f"{outdir}/f{file_num}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
+
         return
 
 
-for start_file_num in range(0,1000,50):
+for start_file_num in range(1,1001,50):
     thread = threading.Thread(target=per_thread, name = str(start_file_num), args=(start_file_num,start_file_num+50))
     thread.start()
