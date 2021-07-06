@@ -31,11 +31,12 @@ for file in files[0:10]:
 
     idx = random.choice(np.arange(n))
     print(idx)
-    indexes = []
-    indexes.append(idx)
     ordered_sequences.append(sequences[idx])
     while len(ordered_sequences)<len(sequences):
-        idx = np.argmax(distances[np.mask(distances[idx],indexes)])
-        indexes.append(idx)
+        new_idx = np.argmax(distances[idx])
+        distances[idx,new_idx] = 0
+        distances[new_idx,idx] = 0
+        print(distances)
+        ordered_sequences.append(sequences[new_idx])
+        idx = new_idx
         print(idx)
-        ordered_sequences.append(sequences[idx])
