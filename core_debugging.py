@@ -48,7 +48,23 @@ def condition_check(val, type="matrix"):
         a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
     return a*a + b*b + c*c + d*d
 
-def rkmk_step(Y,y,n,h=1e-2):
+def group_check(matrix):
+    alpha, beta = matrix[0,0], matrix[1,0]
+    check1 = np.abs(alpha)**2 + np.abs(beta)**2
+    check2 = np.array([[alpha, np.conjugate(-beta)], [beta, np.conjugate(alpha)]])
+    if np.isclose(check1,1.) and np.array_equal(matrix,check2):
+        return True
+    else:
+        return False
+
+def algebra_check(matrix):
+    matrix = np.matrix(matrix)
+    ct = np.array_equal(matrix.H, -matrix)
+    if np.trace(matrix) == 0 and ct == True:
+        return True
+    return False
+
+def rkmk_step(Y,y,n,h=1e-10):
     k = np.zeros((s,2,2), dtype="complex128")
     I1 = Y(y,n)
     k[0] = Y(y,n)
@@ -63,6 +79,7 @@ def rkmk_step(Y,y,n,h=1e-2):
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
     print(condition_check(y))
+    print(group_check(y))
     #if not np.isclose(condition_check(y),1.):
         #raise ValueError
         #return 'NaN'
