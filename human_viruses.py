@@ -63,7 +63,7 @@ def per_thread(start,stop):
             y_array.append(next_y)
         print(f"{file_num} Writing output..")
         #np.savetxt(f"{outdir}/f{file_num}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
-        with open(f"{outdir}/f{file_num}_yarray.pkl",'w') as outfile:
+        with open(f"{outdir}/f{file_num}_yarray.pkl",'wb') as outfile:
             pkl.dump(y_array,outfile)
 
     return
