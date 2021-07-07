@@ -29,38 +29,42 @@ def per_thread(start,stop):
             sequences.append(record.seq.upper())
         file.close()
 
-        n = len(sequences)
-        distances = np.zeros((n,n))
+        n_sequences = len(sequences)
+        distances = np.zeros((n_sequences,n_sequences))
         print(f"{file_num} Calculating distances..")
-        for i in range(n):
-            for j in range(i+1,n):
+        for i in range(n_sequences):
+            for j in range(i+1,n_sequences):
                 align_score = pairwise_alignment(sequences[i],sequences[j])
                 distances[i,j] = align_score
                 distances[j,i] = align_score
+        print(distances)
 
         print(f"{file_num} Ordering sequences..")
         ordered_sequences = []
-        idx = random.choice(np.arange(n))
+        idx = random.choice(np.arange(n_sequences))
         distances[:,idx] = 0
         ordered_sequences.append(sequences[idx])
-        while len(ordered_sequences)<len(sequences):
+        while len(ordered_sequences)<n_sequences:
             idx = np.argmax(distances[idx])
             distances[:,idx] = 0
             ordered_sequences.append(sequences[idx])
 
+        print("lengths", len(ordered_sequences),n_sequences)
         print(f"{file_num} Running RKMK..")
         def Y(t):
             seq = ordered_sequences[t]
             y_t = expm(Sequence(seq).run())
             return y_t
-        n_sequences = len(ordered_sequences)
+
         y_array = []
         for n in range(n_sequences):
             y = Y(n)
             next_y = rkmk_step(Y,y,n)
-            y_array.append(matrix_to_c2(next_y))
+            y_array.append(next_y)
         print(f"{file_num} Writing output..")
-        np.savetxt(f"{outdir}/f{file_num}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
+        #np.savetxt(f"{outdir}/f{file_num}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
+        with open(f"{outdir}/f{file_num}_yarray.pkl",'w') as outfile:
+            pkl.dump(y_array,outfile)
 
     return
 
