@@ -8,7 +8,7 @@ import pickle as pkl
 
 indir = "./Data/hmm_sequences/"
 outdir = "./Data/yarrays_test"
-y0 = np.array([[complex(0,1),complex(0,0)],[complex(0,0),complex(0,0)]])
+y0 = np.array([[complex(1,0),complex(0,0)],[complex(0,0),complex(0,0)]])
 
 def pairwise_alignment(s1,s2):
     score = pairwise2.align.globalxx(s1, s2, score_only=True, one_alignment_only=True)
@@ -34,7 +34,6 @@ def per_thread(start,stop):
                 distances[i,j] = align_score
                 distances[j,i] = align_score
 
-
         print(f"{file_num} Ordering sequences..")
         ordered_sequences = []
         idx = random.choice(np.arange(n_sequences))
@@ -59,7 +58,6 @@ def per_thread(start,stop):
         print(f"{file_num} Writing output..")
         with open(f"{outdir}/f{file_num}_yarray.pkl",'wb') as outfile:
             pkl.dump(y_array,outfile)
-
     return
 
 
