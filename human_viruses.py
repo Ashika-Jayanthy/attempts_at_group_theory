@@ -1,18 +1,14 @@
 from Bio import pairwise2
 from Bio import SeqIO
 from core import *
-import glob
-import sys
 import numpy as np
 import random
 import threading
+import pickle as pkl
 
 indir = "./Data/hmm_sequences/"
 outdir = "./Data/yarrays"
-files = glob.glob(f"{indir}/*")
 
-def matrix_to_c2(m):
-    return np.array([m[0,0],m[1,0]])
 
 def pairwise_alignment(s1,s2):
     score = pairwise2.align.globalxx(s1, s2, score_only=True, one_alignment_only=True)
@@ -37,7 +33,7 @@ def per_thread(start,stop):
                 align_score = pairwise_alignment(sequences[i],sequences[j])
                 distances[i,j] = align_score
                 distances[j,i] = align_score
-        print(distances)
+
 
         print(f"{file_num} Ordering sequences..")
         ordered_sequences = []
@@ -49,7 +45,6 @@ def per_thread(start,stop):
             distances[:,idx] = 0
             ordered_sequences.append(sequences[idx])
 
-        print("lengths", len(ordered_sequences),n_sequences)
         print(f"{file_num} Running RKMK..")
         def Y(t):
             seq = ordered_sequences[t]
@@ -62,7 +57,6 @@ def per_thread(start,stop):
             next_y = rkmk_step(Y,y,n)
             y_array.append(next_y)
         print(f"{file_num} Writing output..")
-        #np.savetxt(f"{outdir}/f{file_num}_yarray.txt", y_array, fmt='%.18e', delimiter=' ', newline='\n')
         with open(f"{outdir}/f{file_num}_yarray.pkl",'wb') as outfile:
             pkl.dump(y_array,outfile)
 
