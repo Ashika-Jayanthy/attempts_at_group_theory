@@ -7,8 +7,8 @@ import threading
 import pickle as pkl
 
 indir = "./Data/hmm_sequences/"
-outdir = "./Data/yarrays"
-
+outdir = "./Data/yarrays_test"
+y0 = np.array([[complex(0,1),complex(0,0)],[complex(0,0),complex(0,0)]])
 
 def pairwise_alignment(s1,s2):
     score = pairwise2.align.globalxx(s1, s2, score_only=True, one_alignment_only=True)
@@ -46,16 +46,16 @@ def per_thread(start,stop):
             ordered_sequences.append(sequences[idx])
 
         print(f"{file_num} Running RKMK..")
-        def Y(t):
+        def Y(y,t):
             seq = ordered_sequences[t]
-            y_t = expm(Sequence(seq).run())
+            y_t = matrix_multiply(y,expm(Sequence(seq).run()))
             return y_t
 
         y_array = []
+        y = Y(y0,0)
         for n in range(n_sequences):
-            y = Y(n)
-            next_y = rkmk_step(Y,y,n)
-            y_array.append(next_y)
+            y = rkmk_step(Y,y,n)
+            y_array.append(y)
         print(f"{file_num} Writing output..")
         with open(f"{outdir}/f{file_num}_yarray.pkl",'wb') as outfile:
             pkl.dump(y_array,outfile)
