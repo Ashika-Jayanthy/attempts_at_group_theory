@@ -47,7 +47,7 @@ def per_thread(start,stop):
 
         print(f"{file_num} Writing output..")
         with open(f"{outdir}/f{file_num}_ordered_sequence.pkl",'wb') as outfile:
-            pkl.dump(y_array,outfile)
+            pkl.dump(ordered_sequences,outfile)
 
     return
 
