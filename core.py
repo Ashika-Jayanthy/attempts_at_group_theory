@@ -50,8 +50,8 @@ def condition_check(val, type="matrix"):
 
 def rkmk_step(Y,y,n,h=1e-10):
     k = np.zeros((s,2,2), dtype="complex128")
-    I1 = Y(n)
-    k[0] = Y(n)
+    I1 = Y(y,n)
+    k[0] = Y(y,n)
 
     for i in range(0,2):
         u = np.zeros((s-2,2,2), dtype="complex128")
@@ -59,16 +59,16 @@ def rkmk_step(Y,y,n,h=1e-10):
 
         u[i] = h * np.sum([A[i+2,j] * k[j] for j in range(i)], axis=0)
         u_tilda[i] = u[i] + (((c[i+2] * h) / 6) * commutator(I1, u[i]))
-        #k[i+1] = Y(matrix_multiply(y, expm(u_tilda[i])), n)
-        k[i+1] = Y(n)
+        k[i+1] = Y(matrix_multiply(y, expm(u_tilda[i])), n)
+        #k[i+1] = Y(n)
 
     I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - h))) / h
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
     if not np.isclose(condition_check(y),1.):
-        #raise ValueError
-        return 'NaN'
+        raise ValueError
+        #return 'NaN'
     else:
         return y
 
