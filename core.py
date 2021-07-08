@@ -60,8 +60,8 @@ def rkmk_step(Y,y,n,h=1e-10):
     I1 = Y(y,n)
     k[0] = Y(y,n)
 
-    for i in range(2,s):
-        u = h * np.sum([A[i-1,j] * k[j] for j in range(i)], axis=0)
+    for i in range(2,s+1):
+        u = h * np.sum([A[i-1,j] * k[j] for j in range(i-1)], axis=0)
         u_tilda = u + (((c[i-1] * h) / 6) * commutator(I1, u))
         k[i-1] = Y(matrix_multiply(y, expm(u_tilda)), n)
 
