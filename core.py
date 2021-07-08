@@ -2,6 +2,7 @@ from scipy.linalg import expm
 import numpy as np
 import random
 import collections
+from Bio import pairwise2
 
 ####
 s = 4
@@ -24,6 +25,11 @@ np.array([[complex(0.,0.),complex(1.,0.)],[complex(-1.,0.),complex(0.,0.)]]),
 np.array([[complex(0.,1.),complex(0.,0.)],[complex(0.,0.),complex(0.,-1.)]]),
 np.array([[complex(0.,1.),complex(0.,0.)],[complex(0.,0.),complex(0.,1.)]])])
 ####
+
+
+def pairwise_alignment(s1,s2):
+    score = pairwise2.align.localxx(s1, s2, score_only=True, one_alignment_only=True)
+    return score
 
 def DNA(l):
     return ''.join(random.choice('CGTA') for _ in range(l))
@@ -55,7 +61,7 @@ def rkmk_step(Y,y,n,h=1e-10):
     k[0] = Y(y,n)
 
     for i in range(2,s):
-        u = h * np.sum([A[i-1,j] * k[j] for j in range(i-1)], axis=0)
+        u = h * np.sum([A[i-1,j] * k[j] for j in range(i)], axis=0)
         u_tilda = u + (((c[i-1] * h) / 6) * commutator(I1, u))
         k[i-1] = Y(matrix_multiply(y, expm(u_tilda)), n)
 
@@ -63,6 +69,7 @@ def rkmk_step(Y,y,n,h=1e-10):
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
+    print(condition_check(y))
     if not np.isclose(condition_check(y),1.):
         return 'NaN'
     else:
