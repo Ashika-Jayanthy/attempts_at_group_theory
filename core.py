@@ -59,7 +59,7 @@ def rkmk_step(Y,y,n,h=1e-10):
         u_tilda = u + (((c[i-1] * h) / 6) * commutator(I1, u))
         k[i-1] = Y(matrix_multiply(y, expm(u_tilda)), n)
 
-    I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - h))) / h
+    I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - I1))) / h
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
