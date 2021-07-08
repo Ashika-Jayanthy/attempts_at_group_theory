@@ -5,7 +5,7 @@ import collections
 from Bio import pairwise2
 
 ####
-s = 5
+s = 4
 A = np.array(
     [
         [0,   0,   0,   0],
@@ -59,9 +59,9 @@ def rkmk_step(Y,y,n,h=1e-10):
     k = np.zeros((s,2,2), dtype="complex128")
     I1 = Y(y,n)
     k[0] = Y(y,n)
-    k[1] = Y(y+(h*(k[0]/2)), n + (h/2))
-    k[2] = Y(y+(h*(k[1]/2)), n + (h/2))
-    k[3] = Y(y+(h*k[2]), n + h)
+    k[1] = Y(y+(h*(k[0]/2)), n)
+    k[2] = Y(y+(h*(k[1]/2)), n)
+    k[3] = Y(y+(h*k[2]), n)
     for i in range(2,s):
         u = h * np.sum([A[i-1,j] * k[j] for j in range(i-1)], axis=0)
         u_tilda = u + (((c[i-1] * h) / 6) * commutator(I1, u))
@@ -72,7 +72,7 @@ def rkmk_step(Y,y,n,h=1e-10):
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
-    #print(condition_check(y))
+    print(condition_check(y))
     if not np.isclose(condition_check(y),1.):
         return 'NaN'
     else:
