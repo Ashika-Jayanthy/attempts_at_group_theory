@@ -14,8 +14,8 @@ def pairwise_alignment(s1,s2):
     return score
 
 def per_thread(start,stop):
-    n_sequences = 5
-    sequences = [DNA(30) for i in range(n_sequences)]
+    n_sequences = 50
+    sequences = [DNA(300) for i in range(n_sequences)]
     distances = np.zeros((n_sequences,n_sequences))
 
 
@@ -44,7 +44,7 @@ def per_thread(start,stop):
         y_t = matrix_multiply(y,expm(alg))
         return y_t
 
-    print(ordered_sequences)
+    #print(ordered_sequences)
     y_array = []
     y = y0
     for n in range(n_sequences):
@@ -53,5 +53,5 @@ def per_thread(start,stop):
     return y_array
 
 out = per_thread(1,2)
-for i in out:
-    print(i)
+#for i in out:
+    #print(i)

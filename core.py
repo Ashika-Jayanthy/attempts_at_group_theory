@@ -18,10 +18,11 @@ c = np.array([0, 0.5, 0.5, 1.0])
 
 m1, m2, m3 = 2, 2, -1
 
-generators = np.array([np.array([[0,complex(0,1)],[complex(0,1),0]]),
-np.array([[0,-1],[1,0]]),
-np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
-np.array([[complex(0,1),0],[0,complex(0,1)]])])
+
+generators = np.array([np.array([[complex(0.,0.),complex(0.,1.)],[complex(0.,1.),complex(0.,0.)]]),
+np.array([[complex(0.,0.),complex(1.,0.)],[complex(-1.,0.),complex(0.,0.)]]),
+np.array([[complex(0.,1.),complex(0.,0.)],[complex(0.,0.),complex(0.,-1.)]]),
+np.array([[complex(0.,1.),complex(0.,0.)],[complex(0.,0.),complex(0.,1.)]])])
 ####
 
 def DNA(l):
@@ -44,7 +45,7 @@ def commutator(a,b):
 def condition_check(val, type="matrix"):
     if type == "matrix":
         a,b,c,d = np.real(val[0,0]), np.imag(val[0,0]), np.real(val[1,0]), np.imag(val[1,0])
-    elif type == "c2":
+    elif type == "vector":
         a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
     return a*a + b*b + c*c + d*d
 
@@ -53,22 +54,17 @@ def rkmk_step(Y,y,n,h=1e-10):
     I1 = Y(y,n)
     k[0] = Y(y,n)
 
-    for i in range(0,2):
-        u = np.zeros((s-2,2,2), dtype="complex128")
-        u_tilda = np.zeros((s-2,2,2), dtype="complex128")
-
-        u[i] = h * np.sum([A[i+2,j] * k[j] for j in range(i)], axis=0)
-        u_tilda[i] = u[i] + (((c[i+2] * h) / 6) * commutator(I1, u[i]))
-        k[i+1] = Y(matrix_multiply(y, expm(u_tilda[i])), n)
-        #k[i+1] = Y(n)
+    for i in range(2,s+1):
+        u = h * np.sum([A[i-1,j] * k[j] for j in range(i-1)], axis=0)
+        u_tilda = u + (((c[i-1] * h) / 6) * commutator(I1, u))
+        k[i-1] = Y(matrix_multiply(y, expm(u_tilda)), n)
 
     I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - h))) / h
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
     v_tilda = v + ((h / 4) * commutator(I1,v)) + ((h**2 / 24) * commutator(I2,v))
     y = matrix_multiply(y, expm(v_tilda))
     if not np.isclose(condition_check(y),1.):
-        raise ValueError
-        #return 'NaN'
+        return 'NaN'
     else:
         return y
 
@@ -82,10 +78,10 @@ def random_sequence_evolve(sequence,l_replacement=1):
 class Sequence:
     def __init__(self,sequence):
         self.dict = {
-        'A': np.array([[0,complex(0,1)],[complex(0,1),0]]),
-        'T': np.array([[0,-1],[1,0]]),
-        'G': np.array([[complex(0,1),0],[0,-(complex(0,1))]]),
-        'C': np.array([[complex(0,1),0],[0,complex(0,1)]]),
+        'A': np.array([[complex(0.,0.),complex(0.,1.)],[complex(0.,1.),complex(0.,0.)]]),
+        'T': np.array([[complex(0.,0.),complex(1.,0.)],[complex(-1.,0.),complex(0.,0.)]]),
+        'G': np.array([[complex(0.,1.),complex(0.,0.)],[complex(0.,0.),complex(0.,-1.)]]),
+        'C': np.array([[complex(0.,1.),complex(0.,0.)],[complex(0.,0.),complex(0.,1.)]]),
         }
         self.sequence = sequence
 

@@ -11,7 +11,6 @@ data_dir = "./Data"
 fig_dir = "./Figures"
 
 
-
 # Load data
 virus_genomic_sequences = []
 virus_names = []
