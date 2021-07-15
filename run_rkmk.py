@@ -1,14 +1,11 @@
-from Bio import pairwise2
-from Bio import SeqIO
 from core import *
 import numpy as np
-import random
-import threading
 import pickle as pkl
 
 
 indir = "./Data/ordered_sequences"
-y0 = np.array([[complex(1,0),complex(0,0)],[complex(0,0),complex(0,0)]])
+outdir = "./Data/yarrays"
+y0 = np.array([[complex(0.5,0.5),complex(1,1)],[complex(0.5,0.5),complex(1,1)]])
 
 
 for i in range(1,1001):
@@ -30,7 +27,6 @@ for i in range(1,1001):
         y_array.append(y)
 
     print(y_array)
-
-    #print(f"{file_num} Writing output..")
-    #with open(f"{outdir}/f{file_num}_yarray.pkl",'wb') as outfile:
+    #print(f"{i} Writing output..")
+    #with open(f"{outdir}/f{i}_yarray.pkl",'wb') as outfile:
         #pkl.dump(y_array,outfile)
