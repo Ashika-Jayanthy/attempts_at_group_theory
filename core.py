@@ -55,18 +55,14 @@ def condition_check(val, type="matrix"):
         a,b,c,d = np.real(val[0]), np.imag(val[0]), np.real(val[1]), np.imag(val[1])
     return a*a + b*b + c*c + d*d
 
-def rkmk_step(Y,y,n,h=1e-10):
+def rkmk_step(Y,y,n,h=1e-7):
     k = np.zeros((s,2,2), dtype="complex128")
     I1 = Y(y,n)
     k[0] = Y(y,n)
-    k[1] = Y(y+(h*(k[0]/2)), n)
-    k[2] = Y(y+(h*(k[1]/2)), n)
-    k[3] = Y(y+(h*k[2]), n)
-    for i in range(2,s):
-        u = h * np.sum([A[i-1,j] * k[j] for j in range(i-1)], axis=0)
-        u_tilda = u + (((c[i-1] * h) / 6) * commutator(I1, u))
-        for j in range(4):
-            k[j] = Y(matrix_multiply(k[j], expm(u_tilda)), n)
+    for i in range(1,s):
+        u = h * np.sum([A[i,j] * k[j] for j in range(i)], axis=0)
+        u_tilda = u + (((c[i] * h) / 6) * commutator(I1, u))
+        k[i] = Y(matrix_multiply(y, expm(u_tilda)), n)
 
     I2 = ((m1 * (k[1] - I1)) + (m2 * (k[2] - I1)) + (m3 * (k[3] - I1))) / h
     v = h * np.sum([b[j] * k[j] for j in range(s)], axis=0)
