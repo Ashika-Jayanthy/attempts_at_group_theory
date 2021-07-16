@@ -35,7 +35,7 @@ for i in range(1,1001):
         y = rkmk_step(Y,y,n)
         y_array[n] = y
 
-    all_y[i] = y_array
+    all_y[i-1] = y_array
 
 
 print(f"{ff} Writing output..")

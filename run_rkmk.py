@@ -11,7 +11,7 @@ all_y = np.zeros((1000,20,2,2),dtype="complex128")
 
 for i in range(1,1001):
     print(f"{i} of 1000")
-    
+
     with open(f"{indir}/f{i}_ordered_sequence.pkl",'rb') as michaelscott:
         ordered_sequences = pkl.load(michaelscott)
 
@@ -29,7 +29,7 @@ for i in range(1,1001):
         y = rkmk_step(Y,y,n)
         y_array[n] = y
 
-    all_y[i] = y_array
+    all_y[i-1] = y_array
 
 print(f"{i} Writing output..")
 with open(f"{outdir}/virus_all_y.pkl",'wb') as outfile:
