@@ -2,7 +2,7 @@ from Bio import pairwise2
 import numpy as np
 import random
 import threading
-from core_debugging import *
+from core import *
 
 y0 = np.array([[complex(1,0),complex(0,0)],[complex(0,0),complex(-1,0)]])
 
