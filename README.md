@@ -1,5 +1,5 @@
 # gauge_theory
 
-Gauge theory for sequence evolution or How do dimensionless numbers create dimension-full things?
+Gauge theory for sequence evolution
 
 NCBI Genomes FTP: https://ftp.ncbi.nlm.nih.gov/genomes/
