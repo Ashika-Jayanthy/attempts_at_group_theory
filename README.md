@@ -1,5 +1,5 @@
-# gauge_theory
+# Attempts at group theory...
 
-Gauge theory for sequence evolution
+...for sequence evolution
 
 NCBI Genomes FTP: https://ftp.ncbi.nlm.nih.gov/genomes/
